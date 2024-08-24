@@ -4,7 +4,7 @@ import * as yaml from 'yaml';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const configFilePath = path.join(__dirname, '../../config.yaml'); // Adjust the path as needed
+const configFilePath = path.join(__dirname, '../../config.yaml');
 const configYaml = yaml.parse(fs.readFileSync(configFilePath, 'utf8'));
 
 @Global()

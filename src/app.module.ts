@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import {GlobalConfigModule} from "./common/config-module";
+import {mongoseModule} from "./database/register-helper";
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [GlobalConfigModule,  mongoseModule()
+
+],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}
