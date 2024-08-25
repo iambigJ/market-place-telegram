@@ -9,13 +9,11 @@ const configYaml = yaml.parse(fs.readFileSync(configFilePath, 'utf8'));
 
 @Global()
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            isGlobal: true,
-            load: [
-                () => configYaml,
-            ],
-        }),
-    ],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [() => configYaml],
+    }),
+  ],
 })
 export class GlobalConfigModule {}

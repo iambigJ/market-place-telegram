@@ -1,4 +1,10 @@
-import {Inject, Injectable} from '@nestjs/common';
-import { User, UserSchema } from './entities/user.schema';
-import { Model } from 'mongoose';
+import {  Injectable } from '@nestjs/common';
+import { MyLogger } from '../../shared/loggercustom';
+import { UserRepository } from './user.repository';
 
+@Injectable()
+export class UsersService {
+  private readonly logger = new MyLogger(this.constructor.name);
+
+  constructor(private readonly userRepository: UserRepository) {}
+}

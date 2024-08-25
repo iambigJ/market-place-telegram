@@ -1,18 +1,16 @@
 import {
-  ArrayNotEmpty,
-  IsArray,
+  IsString,
   IsEmail,
-  IsEnum,
   IsNotEmpty,
   IsOptional,
-  IsString,
+  IsBoolean,
+  IsDate,
+  IsArray,
+  ArrayNotEmpty,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 
-export enum userRole {
-  Seller = 'Seller',
-  Customer = 'Customer',
-}
-export class CreateUserDto {
+export class UserEntitie {
   @IsString()
   @IsNotEmpty()
   telegramId: string;
@@ -30,13 +28,35 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  @IsEnum(userRole)
   @IsNotEmpty()
   role: string;
+
+  @IsDate()
+  @Type()
+  @IsOptional()
+  createdAt?: Date;
+
+  @IsDate()
+  @Type()
+  @IsOptional()
+  updatedAt?: Date;
+
+  @IsDate()
+  @Type()
+  @IsOptional()
+  deletedAt?: Date;
+
+  @IsBoolean()
+  @IsOptional()
+  isVerified?: boolean;
 
   @IsString()
   @IsOptional()
   address?: string;
+
+  @IsString()
+  @IsOptional()
+  productLimit: number;
 
   @IsArray()
   @IsString({ each: true })

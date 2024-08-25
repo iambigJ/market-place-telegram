@@ -1,21 +1,13 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './entities/user.schema';
-import {CacheModule} from "@nestjs/common/cache";
+import { UserRepository } from './user.repository';
+import { UsersController } from './users.controller';
 
 @Module({
   imports: [
-    MongooseModule.forFeature(
-      [{ name: User.name, schema: UserSchema }],
-
-      CacheModule.register<RedisClientOptions>({
-        store: redisStore,
-        host: 'localhost',
-        port: 6379,
-      }),
-    ),
+    // MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  providers: [],
+  providers: [UserRepository],
   exports: [],
+  controllers: [UsersController],
 })
 export class UsersModule {}

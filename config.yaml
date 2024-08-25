@@ -1,5 +1,15 @@
 
-mongo:
-  url:
+MONGO-general:
+  url: 'localhost'
+  port: 2345
   user:
   password:
+
+Redis-general:
+  uri: 'localhost'
+  port: 234
+  password:
+
+logLevel:
+
+JWTKetPath: /user/path/ok
