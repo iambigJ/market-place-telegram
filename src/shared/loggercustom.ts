@@ -1,19 +1,18 @@
-import { ConsoleLogger, Logger } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 
 export class MyLogger extends ConsoleLogger {
-  log(message: string) {
-    super.log('📢 ' + message);
+  log(message: string, ...optionalParams: [...any]) {
+    super.log('📢 ' + message, optionalParams);
   }
 
-  error(message: string) {
-    super.error('❌ ' + message);
+  warn(message: string, ...optionalParams: [...any]) {
+    super.warn('📢 ' + message, optionalParams);
+  }
+  debug(message: string, ...optionalParams: [...any]) {
+    super.debug('📢 ' + message, optionalParams);
   }
 
-  warn(message: string) {
-    super.warn('⚠️ ' + message);
-  }
-
-  debug(message: string) {
-    super.debug('🐞 ' + message);
+  error(message: string, ...optionalParams: [...any]) {
+    super.error('📢 ' + message, optionalParams);
   }
 }

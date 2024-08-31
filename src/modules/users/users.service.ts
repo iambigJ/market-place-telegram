@@ -1,4 +1,4 @@
-import {  Injectable } from '@nestjs/common';
+import { CACHE_MANAGER, Injectable } from '@nestjs/common';
 import { MyLogger } from '../../shared/loggercustom';
 import { UserRepository } from './user.repository';
 
@@ -6,5 +6,7 @@ import { UserRepository } from './user.repository';
 export class UsersService {
   private readonly logger = new MyLogger(this.constructor.name);
 
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+  ) {}
 }

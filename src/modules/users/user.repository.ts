@@ -1,5 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { MyLogger } from '../../shared/loggercustom'; // Ensure UserDocument is imported correctly
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { MyLogger } from '../../shared/loggercustom';
+import { CACHE_MANAGER } from '@nestjs/cache-manager'; // Ensure UserDocument is imported correctly
+import { Cache } from 'cache-manager';
 
 const noStrict = {
   strict: false,
@@ -10,11 +12,20 @@ const noStrict = {
 @Injectable()
 export class UserRepository implements OnModuleInit {
   private readonly logger = new MyLogger(UserRepository.name);
-  constructor() {}
+  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-  onModuleInit(): any {
-    this.logger.log('ssssssssssss');
-    console.log('shooooooooooooooooooooo');
+  async onModuleInit(): Promise<void> {
+    try {
+      await this.cacheManager.set('a', 'a').catch((e) => {
+        console.log(e);
+      });
+      const x = await this.cacheManager.get('a');
+      console.log('x issssssssssssssssss');
+      console.log(x);
+      console.log('Module initialization complete');
+    } catch (error) {
+      this.logger.error('Error during onModuleInit', error);
+    }
   }
   // Create a new user
   // async createUser(createUserDto: any): Promise<User> {
