@@ -1,13 +1,13 @@
 
-MONGO-general:
+MONGO_General:
   url: 'localhost'
   port: 2345
   user:
   password:
 
-Redis-general:
+Redis_General:
   uri: 'localhost'
-  port: 234
+  port: 6380
   password:
 
 logLevel:

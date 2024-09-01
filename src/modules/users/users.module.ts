@@ -1,21 +1,19 @@
-import { Inject, Module, OnModuleInit } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UsersController } from './users.controller';
 import { CacheService } from '../cache/redis-service';
-import type { RedisClientOptions } from 'redis';
-import * as redisStore from 'cache-manager-redis-store';
-import { CacheModule } from '@nestjs/common/cache';
-import { RedisOptions } from '../cache/redis-module';
+import {UsersService} from "./users.service";
 
 @Module({
   imports: [],
-  providers: [UserRepository, CacheService],
+  providers: [UserRepository,UsersService],
   controllers: [UsersController],
 })
 export class UsersModule implements OnModuleInit {
-  constructor(private cacheSerivce: CacheService) {}
+  constructor(private cacheSerivce: CacheService, private userService: UsersService) {}
 
   onModuleInit(): void {
-    // this.cacheSerivce.boot(this.cacheManager);
+    this.cacheSerivce.boot('telekala_users');
+    this.userService.boot(this.cacheSerivce)
   }
 }

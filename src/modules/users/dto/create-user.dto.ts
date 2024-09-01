@@ -18,7 +18,7 @@ export class CreateUserDto {
   telegramId: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   username: string;
 
   @IsEmail()
@@ -32,7 +32,7 @@ export class CreateUserDto {
   @IsString()
   @IsEnum(userRole)
   @IsNotEmpty()
-  role: string;
+  role: userRole;
 
   @IsString()
   @IsOptional()

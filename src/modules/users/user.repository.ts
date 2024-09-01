@@ -2,6 +2,8 @@ import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { MyLogger } from '../../shared/loggercustom';
 import { CACHE_MANAGER } from '@nestjs/cache-manager'; // Ensure UserDocument is imported correctly
 import { Cache } from 'cache-manager';
+import {CacheService} from "../cache/redis-service";
+import {InjectConnection} from "@nestjs/mongoose";
 
 const noStrict = {
   strict: false,
@@ -10,24 +12,10 @@ const noStrict = {
 };
 
 @Injectable()
-export class UserRepository implements OnModuleInit {
+export class UserRepository  {
   private readonly logger = new MyLogger(UserRepository.name);
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor() {}
 
-  async onModuleInit(): Promise<void> {
-    try {
-      await this.cacheManager.set('a', 'a').catch((e) => {
-        console.log(e);
-      });
-      const x = await this.cacheManager.get('a');
-      console.log('x issssssssssssssssss');
-      console.log(x);
-      console.log('Module initialization complete');
-    } catch (error) {
-      this.logger.error('Error during onModuleInit', error);
-    }
-  }
-  // Create a new user
   // async createUser(createUserDto: any): Promise<User> {
   //   const newUser = new this.userModel(createUserDto);
   //   return newUser.save();

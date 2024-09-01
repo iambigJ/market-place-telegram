@@ -48,11 +48,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', function (next) {
   const user = this as UserDocument;
-
-  // Update the updatedAt field before saving
   user.updatedAt = new Date();
-
-  // Example: Add password hashing logic here if needed
 
   next();
 });

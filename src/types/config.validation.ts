@@ -1,15 +1,16 @@
-export interface Config {
-  MONGO: {
+export interface GeneralConfig {
+  MONGO_General: {
     url: string;
     port: number;
     user?: string;
     password?: string;
   };
-  Redis: {
+  Redis_General: {
     uri: string;
     port: number;
     password?: string;
   };
+
   logLevel: string;
   JWTKetPath: string;
 }

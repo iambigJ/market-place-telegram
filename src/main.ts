@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { UserRepository } from './modules/users/user.repository';
+import {UserRepository} from "./modules/users/user.repository";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,8 +15,8 @@ async function bootstrap() {
     }),
   );
   app.enableCors();
-  app.get(UserRepository).onModuleInit();
-
+    app.get(UserRepository).ok()
+    app.get(UserRepository).ok2()
   await app.listen(3000);
 }
 bootstrap();
