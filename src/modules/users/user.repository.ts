@@ -17,20 +17,20 @@ const noStrict = {
 @Injectable()
 export class UserRepository {
   private readonly logger = new MyLogger(UserRepository.name);
-  constructor(@InjectModel(User.name) private UserModel: Model<User>) {}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
   async createUser(createUserDto: CreateUserDto): Promise<User> {
-    return await this.UserModel.create(createUserDto);
+    return await this.userModel.create(createUserDto);
   }
   //
   // // Update an existing user by ID
-  // async updateUser(createUserDto: any): Promise<User | null> {
-  //   return await this.userModel.findByIdAndUpdate(
-  //     createUserDto.objectId, // The ID of the user to update
-  //     createUserDto, // The updated data
-  //     noStrict, // Return the updated document
-  //   );
-  // }
+  async updateUser(createUserDto: any): Promise<User | null> {
+    return await this.userModel.findByIdAndUpdate(
+      createUserDto.objectId,
+      createUserDto,
+      noStrict,
+    );
+  }
   //
   // // Find a user by ID
   // async findUserById(id: string): Promise<User | null> {

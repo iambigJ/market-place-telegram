@@ -22,9 +22,7 @@ export class UsersController {
   @Post()
   async signup(@Query('id') id: string, @Body() createUserDto: CreateUserDto) {
     console.log(createUserDto);
-    return await this.userService.login(createUserDto);
+    return await this.userService.create(createUserDto);
   }
 
-  // @Post()
-  // async verify(@Query ('verify'))
 }

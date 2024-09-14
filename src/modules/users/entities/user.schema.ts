@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+
 import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({ require: true, unique: true })
   telegramId: string;
@@ -21,17 +22,11 @@ export class User {
   @Prop({ required: true, enum: ['Seller', 'Customer'] })
   role: string;
 
-  @Prop({ default: Date.now })
-  createdAt: Date;
-
-  @Prop()
-  updatedAt: Date;
-
   @Prop()
   deletedAt: Date;
 
   @Prop({ default: false })
-  isVerified: boolean;
+  active: boolean;
 
   @Prop()
   address: string;
@@ -42,14 +37,13 @@ export class User {
   @Prop({ type: Number })
   productLimit: number;
 
-  @Prop({ type: Map, of: String })
-  additionalInfo: Map<string, string>;
+  @Prop({ type: Number })
+  attributeLimite: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', function (next) {
   const user = this as UserDocument;
-  user.isVerified = false;
-  user.updatedAt = new Date();
+  user.active = false;
   next();
 });

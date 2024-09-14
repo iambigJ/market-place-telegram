@@ -22,4 +22,4 @@ import { JWTConfig } from '../../types/config.validation'; // Ensure you are imp
   providers: [JwtService],
   exports: [JwtService],
 })
-export class AuthModule {}
+export class JWTModule {}

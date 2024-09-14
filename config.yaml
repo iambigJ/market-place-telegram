@@ -12,5 +12,14 @@ Redis_General:
 
 logLevel:
 
+
+email:
+  service: "GMAIL"
+  host: "smtp.gmail.com"
+  port: 465
+  secure: true
+  user: 'alijavadij@gmail.com'
+  pass: 'aLi@1263*J<ij'
+
 JWT_Config:
   Key_Path: '/home/iambigj/me/projects/telegram-bot/JWT_Key'

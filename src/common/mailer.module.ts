@@ -1,35 +1,24 @@
-// import { Module } from '@nestjs/common';
-// import { MailerModule } from '@nestjs-modules/mailer';
-// import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-// import { join } from 'path';
-// import { MailService } from './mail.service';
-//
-// @Module({
-//     imports: [
-//
-//        [{
-//
-//            MailerM odule.forRoot({
-//                transport: {
-//                    service: 'gmail',
-//                    auth: {
-//                        user: 'your-email@gmail.com', // Your Gmail address
-//                        pass: 'your-app-password-or-account-password', // Your App Password or account password
-//                    },
-//                },
-//                defaults: {
-//                    from: '"No Reply" <your-email@gmail.com>', // Default sender email
-//                },
-//                template: {
-//                    dir: join(__dirname, 'templates'), // Directory for email templates
-//                    adapter: new HandlebarsAdapter(), // Template engine adapter
-//                    options: {
-//                        strict: true,
-//                    },
-//                },
-//            }),
-//        }]],
-//     providers: [MailService],
-//     exports: [MailService],
-// })
-// export class MailModule {}
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { Module } from '@nestjs/common';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { GlobalConfigModule } from './config/config-module';
+
+@Module({
+  imports: [
+    MailerModule.forRootAsync({
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          host: configService.get<string>('EMAIL_HOST'),
+          port: configService.get<number>('EMAIL_PORT') || 587,
+          secure: false,
+          auth: {
+            user: configService.get<string>('EMAIL_USERNAME'),
+            pass: configService.get<string>('EMAIL_PASSWORD'),
+          },
+        },
+      }),
+      inject: [GlobalConfigModule], // This is outside useFactory
+    }),
+  ],
+})
+export class MailModule {}

@@ -18,8 +18,6 @@ export const mongooseModule = () =>
 
       return {
         uri: uri,
-        useNewUrlParser: true,
-        useUnifiedTopology: true,
         heartbeatFrequencyMS: 30000,
         serverSelectionTimeoutMS: 10000,
         socketTimeoutMS: 5000,
