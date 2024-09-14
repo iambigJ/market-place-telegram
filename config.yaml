@@ -1,7 +1,7 @@
 
 MONGO_General:
   url: 'localhost'
-  port: 2345
+  port: 27017
   user:
   password:
 
@@ -12,4 +12,5 @@ Redis_General:
 
 logLevel:
 
-JWTKetPath: /user/path/ok
+JWT_Config:
+  Key_Path: '/home/iambigj/me/projects/telegram-bot/JWT_Key'

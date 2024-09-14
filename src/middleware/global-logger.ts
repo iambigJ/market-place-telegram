@@ -1,6 +1,6 @@
-import { Injectable, NestMiddleware, Logger } from '@nestjs/common';
+import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import { MyLogger } from '../shared/loggercustom';
+import { MyLogger } from '../common/custom-logger/custom-logger';
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -13,9 +13,9 @@ export class LoggerMiddleware implements NestMiddleware {
     res.on('finish', () => {
       const { statusCode } = res;
       const responseTime = Date.now() - startTime;
-
+      const ip = req.ip;
       this.logger.log(
-        `${method} ${originalUrl} ${statusCode} - ${responseTime}ms`,
+        `${method} ${originalUrl} ${statusCode} - ${ip} ${responseTime}ms`,
       );
     });
 

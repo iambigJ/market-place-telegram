@@ -1,12 +1,30 @@
-import { Body, Controller, Post, Query } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  Body,
+  Controller,
+  Injectable,
+  PipeTransform,
+  Post,
+  Query,
+  UsePipes,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CacheService } from '../../common/cache/redis-service';
+import { UsersService } from './users.service';
 
 @Controller('users')
 export class UsersController {
-  constructor() {
-  }
+  constructor(
+    private cache: CacheService,
+    private userService: UsersService,
+  ) {}
+
   @Post()
-  async signup(@Body() createUserDto: CreateUserDto, @Query('id') id: string) {
+  async signup(@Query('id') id: string, @Body() createUserDto: CreateUserDto) {
     console.log(createUserDto);
+    return await this.userService.login(createUserDto);
   }
+
+  // @Post()
+  // async verify(@Query ('verify'))
 }

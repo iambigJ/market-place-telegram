@@ -1,9 +1,12 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { MyLogger } from '../../shared/loggercustom';
+import { MyLogger } from '../../common/custom-logger/custom-logger';
 import { CACHE_MANAGER } from '@nestjs/cache-manager'; // Ensure UserDocument is imported correctly
 import { Cache } from 'cache-manager';
-import {CacheService} from "../cache/redis-service";
-import {InjectConnection} from "@nestjs/mongoose";
+import { CacheService } from '../../common/cache/redis-service';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
+import { User } from './entities/user.schema';
+import { Model } from 'mongoose';
+import { CreateUserDto } from './dto/create-user.dto';
 
 const noStrict = {
   strict: false,
@@ -12,14 +15,13 @@ const noStrict = {
 };
 
 @Injectable()
-export class UserRepository  {
+export class UserRepository {
   private readonly logger = new MyLogger(UserRepository.name);
-  constructor() {}
+  constructor(@InjectModel(User.name) private UserModel: Model<User>) {}
 
-  // async createUser(createUserDto: any): Promise<User> {
-  //   const newUser = new this.userModel(createUserDto);
-  //   return newUser.save();
-  // }
+  async createUser(createUserDto: CreateUserDto): Promise<User> {
+    return await this.UserModel.create(createUserDto);
+  }
   //
   // // Update an existing user by ID
   // async updateUser(createUserDto: any): Promise<User | null> {

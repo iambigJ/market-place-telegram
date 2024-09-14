@@ -1,19 +1,21 @@
-import {  Injectable } from '@nestjs/common';
-import { MyLogger } from '../../shared/loggercustom';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { MyLogger } from '../../common/custom-logger/custom-logger';
 import { UserRepository } from './user.repository';
-import {CacheService} from "../cache/redis-service";
-import {CreateUserDto} from "./dto/create-user.dto";
+import { CacheService } from '../../common/cache/redis-service';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new MyLogger(this.constructor.name);
-  private cache : CacheService
+  private readonly logger = new MyLogger('UsersService');
 
   constructor(
     private readonly userRepository: UserRepository,
+    private cache: CacheService,
   ) {}
-  boot(cache : CacheService){
-    this.cache = cache
+
+  async login(createUserDto: CreateUserDto) {
+    return await this.userRepository.createUser(createUserDto).catch((e) => {
+      throw new BadRequestException('BadReuqest');
+    });
   }
-  async createUser(createUserDto: CreateUserDto){}
 }

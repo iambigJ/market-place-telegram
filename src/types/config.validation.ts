@@ -1,16 +1,29 @@
-export interface GeneralConfig {
-  MONGO_General: {
-    url: string;
-    port: number;
-    user?: string;
-    password?: string;
-  };
-  Redis_General: {
-    uri: string;
-    port: number;
-    password?: string;
-  };
+export interface MongoConfig {
+  url: string;
+  port: number;
+  user?: string;
+  password?: string;
+}
 
+export interface RedisConfig {
+  uri: string;
+  port: number;
+  user: string;
+  password?: string;
+}
+
+export interface LogConfig {
   logLevel: string;
-  JWTKetPath: string;
+}
+
+export interface JWTConfig {
+  Key_Path: string;
+}
+export interface GeneralConfig
+  extends MongoConfig,
+    RedisConfig,
+    LogConfig,
+    JWTConfig {
+  MONGO_General: MongoConfig;
+  Redis_General: RedisConfig;
 }

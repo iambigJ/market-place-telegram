@@ -1,19 +1,17 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { UsersController } from './users.controller';
-import { CacheService } from '../cache/redis-service';
-import {UsersService} from "./users.service";
+import { UsersService } from './users.service';
+import { AuthModule } from '../../common/jwt-config/jwt-module';
+import { MongooseModule } from '@nestjs/mongoose';
+import { User, UserSchema } from './entities/user.schema';
 
 @Module({
-  imports: [],
-  providers: [UserRepository,UsersService],
+  imports: [
+    AuthModule,
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+  ],
+  providers: [UsersService, UserRepository],
   controllers: [UsersController],
 })
-export class UsersModule implements OnModuleInit {
-  constructor(private cacheSerivce: CacheService, private userService: UsersService) {}
-
-  onModuleInit(): void {
-    this.cacheSerivce.boot('telekala_users');
-    this.userService.boot(this.cacheSerivce)
-  }
-}
+export class UsersModule {}

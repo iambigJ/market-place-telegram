@@ -8,10 +8,11 @@ export class User {
   @Prop({ require: true, unique: true })
   telegramId: string;
 
-  @Prop({ required: true, unique: true })
-  username: string;
-
-  @Prop({ required: true, unique: true })
+  @Prop({
+    required: true,
+    unique: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'], // Email validation using regex
+  })
   email: string;
 
   @Prop({ required: true })
@@ -48,7 +49,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', function (next) {
   const user = this as UserDocument;
+  user.isVerified = false;
   user.updatedAt = new Date();
-
   next();
 });
