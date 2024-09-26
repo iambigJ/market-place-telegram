@@ -6,6 +6,7 @@ import { LoggerMiddleware } from './middleware/global-logger';
 import { UsersModule } from './modules/users/users.module';
 import { RedisCacheModule } from './common/cache/redis-module';
 import { mongooseModule } from './common/mongose-module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { mongooseModule } from './common/mongose-module';
     RedisCacheModule,
     mongooseModule(),
     UsersModule,
+    AuthModule,
   ],
   providers: [
     {
@@ -25,4 +27,5 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*'); // Apply to all routes
   }
+
 }

@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-import { Document } from 'mongoose';
+import {Document, Schema} from 'mongoose';
+import ObjectId = module
 
 export type UserDocument = User & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, strict: 'throw' })
 export class User {
   @Prop({ require: true, unique: true })
   telegramId: string;
@@ -30,6 +31,9 @@ export class User {
 
   @Prop()
   address: string;
+
+  @Prop({ type: String })
+  fullAccessUser: string;
 
   @Prop({ type: [String] })
   favoriteCategories: Array<number | string>;
