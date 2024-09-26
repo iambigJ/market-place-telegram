@@ -26,8 +26,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
       });
     } else {
       const status = 500;
-      //@ts-ignore
-      exception.message;
       return response.status(status).json({
         statusCode: status,
         timestamp: new Date().toISOString(),

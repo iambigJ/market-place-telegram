@@ -6,6 +6,8 @@ import { LoggerMiddleware } from './middleware/global-logger';
 import { UsersModule } from './modules/users/users.module';
 import { RedisCacheModule } from './common/cache/redis-module';
 import { mongooseModule } from './common/mongose-module';
+import { AuthModule } from './modules/auth/auth.module';
+import { MyLogger } from './common/custom-logger/custom-logger';
 
 @Module({
   imports: [
@@ -13,6 +15,7 @@ import { mongooseModule } from './common/mongose-module';
     RedisCacheModule,
     mongooseModule(),
     UsersModule,
+    // AuthModule,
   ],
   providers: [
     {

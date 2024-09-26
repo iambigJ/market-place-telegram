@@ -1,4 +1,4 @@
-import { Inject, Injectable, Scope } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { RedisStore } from 'cache-manager-redis-yet';
@@ -24,7 +24,6 @@ export class CacheService {
     const key = `${this.context}.${item}`;
     const stringValue =
       typeof value === 'string' ? value : JSON.stringify(value);
-    console.log(`string value is ${key}`);
     return await this.cacheManager.set(key, stringValue, ttl);
   }
 
@@ -32,5 +31,4 @@ export class CacheService {
     const key = `${this.context}.${item}`;
     await this.cacheManager.del(key);
   }
-
 }

@@ -1,10 +1,10 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
 
 import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema({ timestamps: true })
+@Schema({ timestamps: true, strict: 'throw' })
 export class User {
   @Prop({ require: true, unique: true })
   telegramId: string;
@@ -36,9 +36,6 @@ export class User {
 
   @Prop({ type: Number })
   productLimit: number;
-
-  @Prop({ type: Number })
-  attributeLimite: number;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

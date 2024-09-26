@@ -19,11 +19,7 @@ export interface LogConfig {
 export interface JWTConfig {
   Key_Path: string;
 }
-export interface GeneralConfig
-  extends MongoConfig,
-    RedisConfig,
-    LogConfig,
-    JWTConfig {
+export interface GeneralConfig extends MongoConfig, LogConfig, JWTConfig {
   MONGO_General: MongoConfig;
   Redis_General: RedisConfig;
 }
