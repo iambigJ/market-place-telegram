@@ -1,11 +1,11 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { GlobalConfigModule } from './common/config/config-module';
-import { AllExceptionsFilter } from './common/filters/global-exeption';
+import { AllExceptionsFilter } from './filters/global-exeption';
 import { APP_FILTER } from '@nestjs/core';
 import { LoggerMiddleware } from './middleware/global-logger';
 import { UsersModule } from './modules/users/users.module';
 import { RedisCacheModule } from './common/cache/redis-module';
-import { mongooseModule } from './common/mongose-module';
+import { mongooseModule } from './common/mongose/mongose-module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MyLogger } from './common/custom-logger/custom-logger';
 
@@ -15,7 +15,7 @@ import { MyLogger } from './common/custom-logger/custom-logger';
     RedisCacheModule,
     mongooseModule(),
     UsersModule,
-    // AuthModule,
+    AuthModule,
   ],
   providers: [
     {

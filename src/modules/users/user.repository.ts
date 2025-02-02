@@ -27,7 +27,6 @@ export class UserRepository {
     return this.userModel.findByIdAndUpdate(id, updateDto);
   }
 
-  // // Retrieve all users
   async findAllUsers(): Promise<User[]> {
     return this.userModel.find().exec();
   }
@@ -38,7 +37,6 @@ export class UserRepository {
   async updateStatus(updateDto: { active: boolean }) {
     return this.userModel.updateOne({ active: updateDto.active });
   }
-  // // Delete a user by ID
   async deleteUser(id: string): Promise<User | null> {
     return this.userModel.findByIdAndDelete(id).exec();
   }
@@ -46,8 +44,5 @@ export class UserRepository {
   async findAndDelete(condition: Record<any, any>): Promise<User | null> {
     return this.userModel.findOneAndDelete({ ...condition }).exec();
   }
-  //
-  // async findUserByCriteria(criteria: any): Promise<User | null> {
-  //   return await this.userModel.findOne(criteria).exec();
-  // }
+
 }

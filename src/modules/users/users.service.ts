@@ -1,23 +1,16 @@
 import {
   BadRequestException,
-  Inject,
   Injectable,
-  Logger,
-  LoggerService,
   NotFoundException,
 } from '@nestjs/common';
 import { MyLogger } from '../../common/custom-logger/custom-logger';
 import { UserRepository } from './user.repository';
-import { CacheService } from '../../common/cache/redis-service';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
   private logger = new MyLogger(UsersService.name);
-  constructor(
-    private readonly userRepository: UserRepository,
-    private cache: CacheService,
-  ) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
   async create(createUserDto: CreateUserDto) {
     return await this.userRepository.createUser(createUserDto).catch(() => {
@@ -26,20 +19,17 @@ export class UsersService {
   }
   async delete(id: string) {
     return await this.userRepository.deleteUser(id).catch((e) => {
-      // this.logger.error('DeleteUserFailed', e);
       throw new BadRequestException('DeleteUser');
     });
   }
 
   async updateStatus(updateUser: { active: boolean }) {
     return await this.userRepository.updateStatus(updateUser).catch((e) => {
-      // this.logger.error('UpdateUserFailed', e);
       throw new BadRequestException('UpdateUserFailed');
     });
   }
   async update(id: string, updateUser: CreateUserDto) {
     return await this.userRepository.updateUser(id, updateUser).catch((e) => {
-      // this.logger.error('UpdateUserFailed', e);
       throw new BadRequestException('UpdateUserFailed');
     });
   }
@@ -54,7 +44,7 @@ export class UsersService {
         return user;
       })
       .catch((e) => {
-        // this.logger.error('not found user', e);
+        this.logger.error('error find user', e?.stack);
         throw new BadRequestException('BadRequest');
       });
   }

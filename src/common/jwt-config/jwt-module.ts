@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JWTConfig } from '../../types/config.validation';
+import { JWTConfig } from '../config/config.validation';
 import { readFile } from 'fs/promises';
 
 @Module({
   imports: [
     JwtModule.registerAsync({
-      imports: undefined,
+      imports: [],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
         const config = configService.get<JWTConfig>('JWT_Config'); // Reading the file name from the config service

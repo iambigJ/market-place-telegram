@@ -1,6 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MongoConfig } from '../types/config.validation';
+import { MongoConfig } from '../config/config.validation';
 
 export const mongooseModule = () =>
   MongooseModule.forRootAsync({

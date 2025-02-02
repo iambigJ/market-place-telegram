@@ -3,10 +3,10 @@ import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
 import { JWTModule } from '../../common/jwt-config/jwt-module';
 import { AuthController } from './auth.controller';
-import { MailModule } from '../../common/mailer.module';
+import { MailModule } from '../../common/mailer/mailer.module';
 
 @Module({
-  imports: [UsersModule, JWTModule, MailModule],
+  imports: [JWTModule, UsersModule, MailModule],
   controllers: [AuthController],
   providers: [AuthService],
 })
