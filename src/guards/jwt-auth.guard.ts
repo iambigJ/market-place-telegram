@@ -9,9 +9,8 @@ import { Request } from 'express';
 import { CacheService } from '../common/cache/redis-service';
 import { AuthPrefix } from '../common/prefixes/global-prefix';
 
-
 export interface RequestWithUser extends Request {
-  user?: any; // Replace `any` with a more specific type if available.
+  user?: any;
 }
 
 @Injectable()
