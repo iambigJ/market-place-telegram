@@ -10,6 +10,8 @@ export class LoggerMiddleware implements NestMiddleware {
     const { method, originalUrl } = req;
     const startTime = Date.now();
 
+    res.on()
+
     res.on('finish', () => {
       const { statusCode } = res;
       const responseTime = Date.now() - startTime;

@@ -3,11 +3,10 @@ import { Document, Types } from 'mongoose';
 import { User } from './user.schema'; // Adjust the path as needed
 
 export type ProductDocument = Product & Document;
-export type CategoryDocument = Category & Document;
 
 @Schema({ timestamps: true, strict: 'throw' })
 export class Product {
-  @Prop({ required: true, type: Types.ObjectId, ref: 'User' })
+  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
   ownerId: Types.ObjectId;
 
   @Prop({ required: true })
@@ -34,16 +33,5 @@ export class Product {
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
 
-@Schema({ timestamps: true, strict: 'throw' })
-export class Category {
-  @Prop({ required: true })
-  name: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Category', default: null })
-  parentId: Types.ObjectId | null;
 
-  @Prop({ required: true })
-  description: string;
-}
-
-export const CategorySchema = SchemaFactory.createForClass(Category);
