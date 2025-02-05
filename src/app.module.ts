@@ -7,10 +7,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RedisCacheModule } from './common/cache/redis-module';
 import { mongooseModule } from './common/mongose/mongose-module';
 import { AuthModule } from './modules/auth/auth.module';
-import { MyLogger } from './common/custom-logger/custom-logger';
-import { OrderModule } from './modules/order/order.module';
-import { CatModule } from './modules/cat/cat.module';
-import { CategoriesModule } from './modules/categories/categories.module';
+
 import { ProductModule } from './modules/product/product.module';
 
 @Module({
@@ -20,9 +17,6 @@ import { ProductModule } from './modules/product/product.module';
     mongooseModule(),
     UsersModule,
     AuthModule,
-    OrderModule,
-    CatModule,
-    CategoriesModule,
     ProductModule,
   ],
   providers: [

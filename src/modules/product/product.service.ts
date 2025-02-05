@@ -1,24 +1,71 @@
 // product.service.ts
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { ProductRepository } from './product.repository';
 import { Product } from './product.schema';
-import { CreateProductDto, UpdateProductDto } from './product.dto';
+import { CreateProductDto, UpdateProductDto } from './dto/create.product.dto';
+import { MyLogger } from '../../common/custom-logger/custom-logger';
+import fs from 'fs';
+import path from 'node:path';
 
 @Injectable()
 export class ProductService {
+  private logger = new MyLogger(ProductService.name);
   constructor(private readonly productRepository: ProductRepository) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  async saveFile(filesPath: string[], filesData: Array<Express.Multer.File>) {
+    const promises = filesPath.map((path, i) => {
+      return new Promise<void>((resolve, reject) => {
+        const stream = fs.createWriteStream(path);
+        stream.write(filesData[i].buffer);
+        stream.end();
+        stream.on('finish', () => resolve());
+        stream.on('error', (err) => reject(err));
+      });
+    });
+    await Promise.all(promises).catch((e) => {
+      this.logger.error('error saving file', e);
+      throw new InternalServerErrorException('Error saving file');
+    });
+  }
+
+  generateFileName(fileName: string) {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+    const extension = path.extname(fileName) || '.png';
+    const fileLastName = `${fileName}-${uniqueSuffix}${extension}`;
+    const uploadPath = path.join(__dirname, '../../storage');
+    return path.join(uploadPath, fileLastName);
+  }
+
+  async create(
+    createProductDto: CreateProductDto,
+    files: Array<Express.Multer.File>,
+  ): Promise<Product> {
+    const fileNames = [];
+    if (files) {
+      for (const file of files) {
+        fileNames.push(this.generateFileName(file.originalname));
+      }
+    }
+    createProductDto.images = fileNames;
     return this.productRepository.create(createProductDto);
   }
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.findAll();
+  async findAll(limit = 10, offset = 10) {
+    this.logger.log('Fetching all products');
+    return this.productRepository.findAll(limit, offset).catch((e) => {
+      this.logger.error('error getting producst', e);
+      throw new NotFoundException('Error getting products');
+    });
   }
 
   async findOne(id: string): Promise<Product> {
     const product = await this.productRepository.findOne(id);
     if (!product) {
+      this.logger.warn(`Product with id ${id} not found`);
       throw new NotFoundException(`Product with id ${id} not found`);
     }
     return product;
