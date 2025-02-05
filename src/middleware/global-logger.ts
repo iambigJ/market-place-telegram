@@ -10,15 +10,14 @@ export class LoggerMiddleware implements NestMiddleware {
     const { method, originalUrl } = req;
     const startTime = Date.now();
 
-    res.on()
-
     res.on('finish', () => {
       const { statusCode } = res;
       const responseTime = Date.now() - startTime;
       const ip = req.ip;
-      this.logger.log(
-        `${method} ${originalUrl} ${statusCode} - ${ip} ${responseTime}ms`,
-      );
+      this.logger.debug('alij')
+      // this.logger.log(
+      //   `${method} ${originalUrl} ${statusCode} - ${ip} ${responseTime}ms`,
+      // );
     });
 
     next();

@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from './user.schema'; // Adjust the path as needed
+import { User } from '../users/entities/user.schema'; // Adjust the path as needed
 
 export type ProductDocument = Product & Document;
 
@@ -18,8 +18,12 @@ export class Product {
   @Prop({ required: true })
   price: number;
 
-  @Prop({ type: Types.ObjectId, ref: 'Category', default: null })
-  categoryId: Types.ObjectId | null;
+  @Prop({
+    required: false,
+    type: Types.ObjectId,
+    ref: User.name,
+  })
+  categoryId: Types.ObjectId;
 
   @Prop({ type: [String], default: [] })
   attributes: string[];
@@ -32,6 +36,3 @@ export class Product {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
-
-
-

@@ -9,24 +9,40 @@ import {
   Param,
   UsePipes,
   ValidationPipe,
+  UseInterceptors,
+  Query,
+  UploadedFiles,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './product.schema';
-import { CreateProductDto, UpdateProductDto } from './dto/product.dto';
+import { CreateProductDto, UpdateProductDto } from './dto/create.product.dto';
+import { imageUploader } from '../../interceptor/image';
 
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Post()
-  @UsePipes(new ValidationPipe({ whitelist: true }))
-  async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
-    return this.productService.create(createProductDto);
+  @UseInterceptors(imageUploader())
+  @UsePipes(new ValidationPipe({ skipMissingProperties: false }))
+  async create(
+    @Body() data: CreateProductDto,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    await this.productService.create(data, files).then((product) => {
+      if (files) {
+        this.productService.saveFile(product.images, files);
+      }
+      return product;
+    });
   }
 
   @Get()
-  async findAll(): Promise<Product[]> {
-    return this.productService.findAll();
+  async findAll(
+    @Query('limit') limit: number,
+    @Query('offset') offset: number,
+  ) {
+    return this.productService.findAll(limit, offset);
   }
 
   @Get(':id')

@@ -7,18 +7,33 @@ export class MyLogger extends ConsoleLogger {
     this.setContext(context);
   }
   log(message: string, ...optionalParams: [...any]) {
-    super.log('📢 ' + message, optionalParams);
+    if (optionalParams.length > 0) {
+      super.log('📢 ' + message, optionalParams);
+    } else {
+      super.log('📢 ' + message);
+    }
   }
 
   warn(message: string, ...optionalParams: [...any]) {
-    super.warn('📢 ' + message, optionalParams);
+    if (optionalParams.length > 0) {
+      super.warn('📢 ' + message, optionalParams);
+    } else {
+      super.warn('📢 ' + message);
+    }
   }
   debug(message: string, ...optionalParams: [...any]) {
-    console.log(optionalParams);
-    super.debug('📢 ' + message, optionalParams);
+    if (optionalParams.length > 0) {
+      super.debug('📢 ' + message, optionalParams);
+    } else {
+      super.debug('📢 ' + message);
+    }
   }
 
   error(message: string, ...optionalParams: any[]) {
-    super.error('📢 ' + message, ...optionalParams);
+    if (optionalParams.length > 0) {
+      super.error('📢 ' + message, optionalParams);
+    } else {
+      super.error('📢 ' + message);
+    }
   }
 }
