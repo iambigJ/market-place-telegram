@@ -16,15 +16,14 @@ type RedisConfig = GeneralConfig['Redis_General'];
         const redisConfig = configService.get<RedisConfig>('Redis_General');
         const store = await redisStore({
           socket: {
-            host: redisConfig?.uri || 'localhost',
-            port: redisConfig?.port || 6379,
+            host: redisConfig?.uri,
+            port: redisConfig?.port,
           },
           password: redisConfig?.password,
+          ttl: 24 * 60 * 60,
         });
-
         return {
           store: () => store,
-          isGlobal: true,
         };
       },
       inject: [ConfigService],

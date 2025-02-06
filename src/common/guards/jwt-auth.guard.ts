@@ -39,8 +39,8 @@ export class AuthGuard implements CanActivate {
         throw new UnauthorizedException();
       }
 
-      const user = await this.cacheService.get(`${AuthPrefix}.${teleId}`);
-      if (!user || user.email !== email || user.teleId !== teleId) {
+      const user = await this.cacheService.get(teleId);
+      if (!user || user.teleId !== teleId) {
         throw new UnauthorizedException();
       }
 
