@@ -7,7 +7,7 @@ export class CacheService {
   private context: string;
   private readonly logger = new Logger(CacheService.name); // Optional logger
 
-  constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
+  constructor(@Inject(CACHE_MANAGER) public cacheManager: Cache) {}
 
   setContext(context: string) {
     this.context = context;
@@ -57,7 +57,7 @@ export class CacheService {
     }
   }
 
-  private getRedisClient() {
+  getRedisClient() {
     try {
       if (
         this.cacheManager.store &&

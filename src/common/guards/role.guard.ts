@@ -3,19 +3,19 @@ import {
   CanActivate,
   ExecutionContext,
   UnauthorizedException,
-  Logger, // Import Logger for better logging
+  Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { CacheService } from '../cache/cache.service'; // Adjust path to your CacheService
-import { Roles } from '../decorators/roles.decorator'; // Assuming you have a Roles decorator
+import { CacheService } from '../cache/redis-service';
 
 interface RequestWithUser {
   user?: {
     teleId?: string;
-    role?: string; // Assuming user object from cache has a role property
-    // ... other user properties
+    role?: string;
   };
 }
+
+const Roles = Reflector.createDecorator();
 
 @Injectable()
 export class RoleGuard implements CanActivate {
@@ -28,7 +28,7 @@ export class RoleGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.get<string[]>(
-      Roles, // Use the Roles decorator identifier
+      Roles,
       context.getHandler(),
     );
 
