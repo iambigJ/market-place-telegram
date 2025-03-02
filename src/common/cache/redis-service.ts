@@ -60,10 +60,10 @@ export class CacheService {
   getRedisClient() {
     try {
       if (
-        this.cacheManager.store &&
-        typeof this.cacheManager.store['getClient'] === 'function'
+        this.cacheManager.stores &&
+        typeof this.cacheManager.stores['getClient'] === 'function'
       ) {
-        return this.cacheManager.store['getClient']();
+        return this.cacheManager.stores['getClient']();
       } else {
         this.logger.warn(
           'getClient() method not available on cacheManager.store.',
