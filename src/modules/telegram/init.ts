@@ -1,7 +1,15 @@
 import { Telegraf, Markup } from 'telegraf';
 import { message } from 'telegraf/filters';
+import { Injectable } from '@nestjs/common';
 
 const bot = new Telegraf('7575430823:AAFuueUyIJGyeBnQqMlh8ycgEJ-4ZOxFeYQ');
+
+@Injectable()
+export class TelegramInit {
+  async boot() {
+    console.log('shapalakh');
+  }
+}
 
 // Main Menu Keyboard
 function sendMainMenuKeyboard(ctx) {

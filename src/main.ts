@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import {AuthService} from "./modules/apis/auth/auth.service";
+import { TelegramInit } from './modules/telegram/init';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
@@ -14,7 +14,13 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
   app.enableCors();
+  app.get(TelegramInit).boot().then();
+
+
   await app.listen(3003);
 }
-bootstrap();
+bootstrap().then((_) => {
+  console.log('We Are the Servants The Soul Of  Binary');
+});

@@ -16,6 +16,7 @@ import { AuthModule } from './modules/apis/auth/auth.module';
 import { ProductModule } from './modules/apis/product/product.module';
 import { CacheService } from './common/cache/redis-service';
 import { AuthPrefix } from './helper/prefixes/global-prefix';
+import { TelegramModule } from './modules/telegram/telegram.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { AuthPrefix } from './helper/prefixes/global-prefix';
     UsersModule,
     AuthModule,
     ProductModule,
+    TelegramModule,
   ],
   providers: [
     {
