@@ -34,6 +34,7 @@ export class ProductController {
   ) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   @UseInterceptors(imageUploader())
   @UsePipes(new ValidationPipe({ skipMissingProperties: false }))
   @UseGuards(AuthGuard)
@@ -52,6 +53,7 @@ export class ProductController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findAll(
     @Query('limit') limit: number,
     @Query('offset') offset: number,
@@ -74,6 +76,7 @@ export class ProductController {
     return this.productService.update(req.user.teleId, updateProductDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<Product> {
     return this.productService.delete(id);

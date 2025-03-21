@@ -1,4 +1,3 @@
-// order.controller.ts
 import {
   Body,
   Controller,
@@ -7,34 +6,36 @@ import {
   Param,
   Post,
   Put,
-  Res,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Order } from './order.schema';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   async create(@Body() createOrderDto: Partial<Order>): Promise<Order> {
     return this.orderService.create(createOrderDto);
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   async findAll(): Promise<Order[]> {
     return;
   }
 
   @Get(':id')
-  async findOne(
-    @Param('id') id: string,
-    @Res({ passthrough: true }) a: string,
-  ): Promise<Order> {
+  @UseGuards(AuthGuard)
+  async findOne(@Param('id') id: string): Promise<Order> {
     return this.orderService.findOne(id);
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateOrderDto: Partial<Order>,
@@ -43,6 +44,7 @@ export class OrderController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard)
   async remove(@Param('id') id: string): Promise<Order> {
     return this.orderService.remove(id);
   }

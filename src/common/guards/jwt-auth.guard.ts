@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CacheService } from '../cache/redis-service';
-import { AuthPrefix } from '../../helper/prefixes/global-prefix';
 
 export interface RequestWithUser extends Request {
   user?: any;

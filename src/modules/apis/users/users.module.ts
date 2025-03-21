@@ -5,7 +5,7 @@ import { UsersService } from './users.service';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './entities/user.schema';
 import { MyLogger } from '../../../common/custom-logger/custom-logger';
-import { JWTModule } from '../../../helper/jwt-config/jwt-module';
+import { JWTModule } from '../../../shared/jwt-config/jwt-module';
 
 @Module({
   imports: [

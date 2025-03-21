@@ -8,8 +8,6 @@ export class OrderService {
   constructor(private readonly orderRepository: OrderRepository) {}
 
   async create(orderData: Partial<Order>): Promise<Order> {
-    // You can perform additional business logic here,
-    // for example computing the order total based on product prices.
     return this.orderRepository.createOrder(orderData);
   }
 
