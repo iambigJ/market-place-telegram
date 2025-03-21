@@ -52,3 +52,5 @@ archive/*/secrets
 
 .nx/cache
 npm.sh
+
+config.yaml

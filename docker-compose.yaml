@@ -1,17 +1,17 @@
 version: '3.8'
 
 services:
-  nodeApp:
-    build: .
-    ports:
-      - "3003:3003"
-    depends_on:
-      redis:
-        condition: service_healthy
-      mongo:
-        condition: service_healthy
-    networks:
-      - app-network
+  # nodeApp:
+  #   build: .
+  #   ports:
+  #     - "3003:3003"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #     mongo:
+  #       condition: service_healthy
+  #   networks:
+  #     - app-network
 
 
   redis:

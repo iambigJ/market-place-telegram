@@ -14,14 +14,16 @@ import {
   UploadedFiles,
   UseGuards,
   Req,
-  ParseIntPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './product.schema';
 import { CreateProductDto } from './dto/create.product.dto';
 import { imageUploader } from '../../../common/interceptor/image';
 import { UpdateProductDto } from './dto/update.product.dto';
-import { AuthGuard, RequestWithUser } from '../../../common/guards/jwt-auth.guard';
+import {
+  AuthGuard,
+  RequestWithUser,
+} from '../../../common/guards/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
 
 @Controller('products')

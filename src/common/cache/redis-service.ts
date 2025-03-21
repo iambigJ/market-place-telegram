@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, Scope } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
@@ -59,11 +59,12 @@ export class CacheService {
 
   getRedisClient() {
     try {
+      console.log(this.cacheManager.store);
       if (
-        this.cacheManager.stores &&
-        typeof this.cacheManager.stores['getClient'] === 'function'
+        this.cacheManager.store &&
+        typeof this.cacheManager.store['getClient'] === 'function'
       ) {
-        return this.cacheManager.stores['getClient']();
+        return this.cacheManager.store['getClient']();
       } else {
         this.logger.warn(
           'getClient() method not available on cacheManager.store.',
