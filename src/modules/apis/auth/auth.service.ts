@@ -14,6 +14,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { MyLogger } from '../../../common/custom-logger/custom-logger';
 import { LoginDto } from './auth.dto';
 import { ConfigService } from '@nestjs/config';
+import { CachePrefixes } from 'src/shared/prefixes/global-prefix';
 
 interface VerificationTokenPayload {
   teleId: string;
@@ -51,19 +52,20 @@ export class AuthService {
       this.configService.get<string>('FROM_EMAIL') || 'testi@email.com';
   }
 
+  static createCachePreficAuth(teleId: string) {
+    return CachePrefixes.auth.concat('.', teleId);
+  }
+
   async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByCondition({
+    const user = await this.usersService.findByConditionWithError({
       email: loginDto.email,
     });
 
-    if (!user) {
-      throw new NotFoundException(this.ERROR_MESSAGES.INVALID_CREDENTIALS);
-    }
-    if (!user.active) {
-      throw new UnprocessableEntityException(
-        this.ERROR_MESSAGES.ACCOUNT_NOT_VERIFIED,
-      );
-    }
+    // if (!user.active) {
+    //   throw new UnprocessableEntityException(
+    //     this.ERROR_MESSAGES.ACCOUNT_NOT_VERIFIED,
+    //   );
+    // }
 
     const passwordMatch = await bcrypt.compare(
       loginDto.password,
@@ -78,14 +80,16 @@ export class AuthService {
       role: user.role,
     };
 
-    await this.cache.set(user.telegramId, {
+    await this.cache.set(AuthService.createCachePreficAuth(user.telegramId), {
+      teleId: user.telegramId,
       role: user.role,
-      email: user.email,
       productLimit: user.productLimit,
       categoryLimit: user.categoryLimit,
     });
 
-    return { access_token: this.jwtService.sign(payload) };
+    return {
+      access_token: this.jwtService.sign(payload, { secret: 'shapalakh' }),
+    };
   }
 
   async verify(token: string) {
@@ -107,7 +111,7 @@ export class AuthService {
       );
     }
 
-    const user = await this.usersService.findByCondition({
+    const user = await this.usersService.findByConditionWithError({
       telegramId: decodedToken.teleId,
     });
     if (!user) {
@@ -133,9 +137,6 @@ export class AuthService {
       });
 
       if (existingUser) {
-        if (!existingUser.active) {
-          return await this.sendVerify(createUserDto.email);
-        }
         throw new UnprocessableEntityException(
           this.ERROR_MESSAGES.EMAIL_ALREADY_REGISTERED,
         );
@@ -144,21 +145,19 @@ export class AuthService {
       createUserDto.password = await bcrypt.hash(createUserDto.password, 10);
       const newUser = await this.usersService.create(createUserDto);
 
-      this.sendEmailVerificationLink(
-        newUser.email,
-        this.generateVerificationToken(newUser.telegramId),
-      ).catch((e) => {
-        this.logger.error('error send email verification', e);
-      });
+      // this.sendEmailVerificationLink(
+      //   newUser.email,
+      //   this.generateVerificationToken(newUser.telegramId),
+      // ).catch((e) => {
+      //   this.logger.error('error send email verification', e);
+      // });
       return {
+        data: newUser,
         message:
           'Registration successful. Please check your email to verify your account.',
       };
     } catch (error) {
-      this.logger.error('Error during signup', {
-        error,
-        email: createUserDto.email,
-      });
+      this.logger.error('Error during signup', error?.stack);
       if (error instanceof UnprocessableEntityException) {
         throw error;
       }
@@ -169,7 +168,7 @@ export class AuthService {
   }
 
   async sendVerify(email: string) {
-    const user = await this.usersService.findByCondition({ email });
+    const user = await this.usersService.findByConditionWithError({ email });
     if (!user) {
       throw new UnprocessableEntityException(
         this.ERROR_MESSAGES.USER_NOT_FOUND,
