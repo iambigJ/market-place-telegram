@@ -1,4 +1,4 @@
-import { Telegraf, Markup } from 'telegraf';
+import { Telegraf, Markup, Context } from 'telegraf';
 
 // Initialize your bot with token
 const bot = new Telegraf('7575430823:AAFuueUyIJGyeBnQqMlh8ycgEJ-4ZOxFeYQ');
@@ -87,10 +87,24 @@ bot.action(/buy:(.+)/, (ctx) => {
 
 bot.command('quit', async (ctx) => {
   // Explicit usage
-  await ctx.telegram.leaveChat(ctx.message.chat.id);
 
   // Using context shortcut
   await ctx.leaveChat();
+});
+
+bot.command('quit', async (ctx: Context) => {
+  // Explicit usage
+
+  // Using context shortcut
+  await ctx.leaveChat();
+});
+
+bot.on('poll_answer', (ctx: Context) => {
+  console.log('Poll answer received');
+});
+
+bot.on('message', (ctx: Context) => {
+  console.dir(ctx, { depth: 10 });
 });
 
 // Handle details button clicks

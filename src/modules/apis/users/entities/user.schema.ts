@@ -4,15 +4,14 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema({ timestamps: true, strict: 'throw' })
+@Schema({ timestamps: true, strict: 'throw', versionKey: false })
 export class User {
-  @Prop({ required: true })
-  @Prop({ require: true, unique: true })
+  @Prop({ required: true, unique: true })
   telegramId: string;
 
   @Prop({
-    required: true,
     unique: true,
+    required: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'], // Email validation using regex
   })
   email: string;
@@ -20,7 +19,7 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ required: true, enum: ['Seller', 'Customer'] })
+  @Prop({ enum: ['Seller', 'Customer'] })
   role: string;
 
   @Prop()
@@ -40,6 +39,9 @@ export class User {
 
   @Prop({ type: Number })
   categoryLimit: number;
+
+  @Prop({ type: Object })
+  additionalInfo: Record<string, any>;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -47,6 +49,7 @@ export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.pre('save', function (next) {
   const user = this as UserDocument;
   user.active = false;
+  user.role = 'Customer';
   user.productLimit = 5;
   user.categoryLimit = 2;
   next();

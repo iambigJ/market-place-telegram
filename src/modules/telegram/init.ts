@@ -12,7 +12,7 @@ export class TelegramInit {
   async boot() {
     this.bot = new Telegraf(this.config.get<string>('telegram_token'));
     this.runEvents();
-    await this.bot.launch();
+    // await this.bot.launch();
     process.once('SIGINT', () => this.bot.stop('SIGINT'));
     process.once('SIGTERM', () => this.bot.stop('SIGTERM'));
     this.cache.getRedisClient();

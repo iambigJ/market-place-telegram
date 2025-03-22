@@ -7,6 +7,8 @@ import { MyLogger } from '../../../common/custom-logger/custom-logger';
 import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CacheService } from '../../../common/cache/redis-service';
+import { CacheUser } from 'src/common/types/cache-user.type';
+import { Param } from '@nestjs/common';
 
 @Injectable()
 export class UsersService {
@@ -41,7 +43,7 @@ export class UsersService {
   async delete(id: string) {
     return await this.userRepository
       .deleteUser(id)
-      .then((_) => {
+      .then(() => {
         this.cacheService.delete(id);
       })
       .catch((e) => {
@@ -54,7 +56,7 @@ export class UsersService {
     return await this.userRepository
       .findByIdAndUpdate(id, updateUser)
       .catch((e) => {
-        throw new BadRequestException('UpdateUserFailed');
+        throw new BadRequestException('UpdateUserFailed', e?.message);
       });
   }
   async update(id: string, updateUser: CreateUserDto) {
@@ -63,14 +65,31 @@ export class UsersService {
     });
   }
 
+  async findByTelegramId(user: CacheUser) {
+    return await this.userRepository
+      .findByCondition({
+        telegramId: user.teleId,
+      })
+      .then((user) => {
+        if (!user) {
+          throw new NotFoundException('UserNotFound');
+        }
+        return user;
+      })
+      .catch((e) => {
+        this.logger.error('error find user', e?.stack);
+        throw new BadRequestException(e?.message);
+      });
+  }
+
   async findById(id: string) {
     return await this.userRepository.findUserById(id).catch((e) => {
-      this.logger.error('error find user', e?.stack);
+      this.logger.error('error find user', e?.stack, e?.message);
       throw new BadRequestException('UserNotFound');
     });
   }
 
-  async findByCondition(condition: Record<any, any>) {
+  async findByConditionWithError(condition: Record<any, any>) {
     return await this.userRepository
       .findByCondition(condition)
       .then((user) => {
@@ -81,10 +100,13 @@ export class UsersService {
       })
       .catch((e) => {
         this.logger.error('error find user', e?.stack);
-        throw new BadRequestException('BadRequest');
+        throw new BadRequestException(e?.message);
       });
   }
-  test() {
-    this.logger.error('alij');
+  async findByCondition(condition: Record<any, any>) {
+    return await this.userRepository.findByCondition(condition).catch((e) => {
+      this.logger.error('error find user', e?.stack);
+      throw new BadRequestException(e?.message);
+    });
   }
 }

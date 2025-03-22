@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { CacheService } from '../cache/redis-service';
+import { AuthService } from 'src/modules/apis/auth/auth.service';
 
 export interface RequestWithUser extends Request {
   user?: any;
@@ -28,24 +29,30 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      const payload = await this.jwtService.verifyAsync(token);
+      console.log(token);
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: 'shapalakh',
+      });
       if (!payload) {
+        throw new UnauthorizedException(
+          'can not find any payload for your token',
+        );
+      }
+      const { teleId } = payload as { teleId?: string };
+      if (!teleId) {
         throw new UnauthorizedException();
       }
 
-      const { email, teleId } = payload as { email?: string; teleId?: string };
-      if (!email || !teleId) {
-        throw new UnauthorizedException();
-      }
-
-      const user = await this.cacheService.get(teleId);
+      const user = await this.cacheService.get(
+        AuthService.createCachePreficAuth(teleId),
+      );
       if (!user || user.teleId !== teleId) {
-        throw new UnauthorizedException();
+        throw new UnauthorizedException('cache not set please login again');
       }
 
       request['user'] = user;
-    } catch {
-      throw new UnauthorizedException();
+    } catch (er: any) {
+      throw new UnauthorizedException(er);
     }
 
     return true;

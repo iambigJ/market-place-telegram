@@ -17,7 +17,6 @@ export class CreateUserDto {
   @IsNotEmpty()
   telegramId: string;
 
-
   @IsEmail()
   @IsNotEmpty()
   email: string;
@@ -27,19 +26,8 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  @IsEnum(userRole)
-  @IsNotEmpty()
-  role: userRole;
-
-  @IsString()
   @IsOptional()
   address?: string;
-
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayNotEmpty()
-  @IsOptional()
-  favoriteCategories?: string[];
 
   @IsOptional()
   additionalInfo?: Map<string, string>;

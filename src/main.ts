@@ -7,6 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
   app.useGlobalPipes(
     new ValidationPipe({
+      whitelist: true,
       enableDebugMessages: true,
       skipUndefinedProperties: false,
       skipNullProperties: false,
@@ -18,9 +19,8 @@ async function bootstrap() {
   app.enableCors();
   app.get(TelegramInit).boot().then();
 
-
   await app.listen(3003);
 }
-bootstrap().then((_) => {
+bootstrap().then(() => {
   console.log('We Are the Servants The Soul Of  Binary');
 });

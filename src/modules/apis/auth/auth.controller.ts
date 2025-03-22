@@ -24,6 +24,7 @@ export class AuthController {
   async signup(@Body() user: CreateUserDto) {
     return this.authService.signUp(user);
   }
+
   @Post('send-verify')
   @UseGuards(AuthGuard)
   async sendVerify(@Param('email') email: string) {

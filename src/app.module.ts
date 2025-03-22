@@ -17,10 +17,12 @@ import { ProductModule } from './modules/apis/product/product.module';
 import { CacheService } from './common/cache/redis-service';
 import { AuthPrefix } from './shared/prefixes/global-prefix';
 import { TelegramModule } from './modules/telegram/telegram.module';
+import { JWTModule } from './shared/jwt-config/jwt-module';
 
 @Module({
   imports: [
     GlobalConfigModule,
+    JWTModule,
     RedisCacheModule,
     mongooseModule(),
     UsersModule,
