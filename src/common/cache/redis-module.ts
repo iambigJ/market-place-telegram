@@ -20,7 +20,7 @@ type RedisConfig = GeneralConfig['Redis_General'];
             port: redisConfig?.port,
           },
           password: redisConfig?.password,
-          ttl: 24 * 60 * 60,
+          ttl: 24 * 60 * 60 * 1000,
         });
         return {
           store: () => store,

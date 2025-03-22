@@ -59,7 +59,6 @@ export class CacheService {
 
   getRedisClient() {
     try {
-      console.log(this.cacheManager.store);
       if (
         this.cacheManager.store &&
         typeof this.cacheManager.store['getClient'] === 'function'
