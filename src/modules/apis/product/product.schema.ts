@@ -1,18 +1,18 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from '../users/entities/user.schema';
+import { Category } from '../categories/category.schema';
 
 export type ProductDocument = Product & Document;
 
-@Schema({ timestamps: true, strict: 'throw' })
+@Schema({ timestamps: true, strict: 'throw', versionKey: false })
 export class Product {
-  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
-  ownerId: Types.ObjectId;
+  @Prop({ required: true, type: String })
+  ownerId: string;
 
   @Prop({ required: true })
   name: string;
 
-  @Prop({ required: true, maxlength: 32 })
+  @Prop({ required: true, maxlength: 100 })
   description: string; // Maximum of 32 characters
 
   @Prop({ required: true })
@@ -21,7 +21,7 @@ export class Product {
   @Prop({
     required: false,
     type: Types.ObjectId,
-    ref: User.name,
+    ref: Category.name,
   })
   categoryId: Types.ObjectId;
 
@@ -31,7 +31,7 @@ export class Product {
   @Prop({ type: [String], default: [] })
   images: string[];
 
-  @Prop({ required: true })
+  @Prop({ required: false })
   stock: number;
 }
 

@@ -36,6 +36,7 @@ export class CreateProductDto {
   attributes?: string[];
 
   @IsNumber()
+  @IsOptional()
   @Type(() => Number)
   stock: number;
 }

@@ -16,7 +16,7 @@ export class ProductRepository {
   }
 
   async findAll(limit: number, offset: number): Promise<Product[]> {
-    return this.productModel.find({ limit, offset }).exec();
+    return this.productModel.find({}, {}, { limit, offset }).exec();
   }
 
   async findOne(id: string): Promise<Product> {

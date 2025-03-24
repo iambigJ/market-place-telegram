@@ -38,11 +38,12 @@ export class ProductService {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const extension = path.extname(fileName) || '.png';
     const fileLastName = `${fileName}-${uniqueSuffix}${extension}`;
-    const uploadPath = path.join(__dirname, '../../storage');
+    const uploadPath = path.join(__dirname, '../../../../storage');
     return path.join(uploadPath, fileLastName);
   }
 
   async create(
+    telegramIdOwner: string,
     createProductDto: CreateProductDto & {
       images: Array<string>;
     },
@@ -55,6 +56,7 @@ export class ProductService {
       }
     }
     createProductDto.images = fileNames;
+    createProductDto.ownerId = telegramIdOwner;
     return this.productRepository.create(createProductDto);
   }
 

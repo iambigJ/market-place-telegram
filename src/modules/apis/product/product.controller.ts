@@ -14,6 +14,7 @@ import {
   UploadedFiles,
   UseGuards,
   Req,
+  BadRequestException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './product.schema';
@@ -43,16 +44,19 @@ export class ProductController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Req() req: RequestWithUser,
   ) {
-    await this.productService.create(data as any, files).then((product) => {
-      if (files && files.length) {
-        this.userService.updateProductLimit(req.user?.telegramId);
-        this.productService.saveFile(product.images, files);
-      }
-      return product;
-    });
+    if (!files || !files.length) {
+      throw new BadRequestException('at least one file exepted');
+    }
+    return await this.productService
+      .create(req['user']['teleId'], data as any, files)
+      .then(async (product) => {
+        await this.userService.updateProductLimit(req.user?.telegramId);
+        await this.productService.saveFile(product.images, files);
+        return product;
+      });
   }
 
-  @Get(':id')
+  @Get()
   @UseGuards(AuthGuard)
   async findAll(
     @Query('limit') limit: number,
