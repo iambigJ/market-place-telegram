@@ -54,3 +54,5 @@ archive/*/secrets
 npm.sh
 
 config.yaml
+
+storage 
