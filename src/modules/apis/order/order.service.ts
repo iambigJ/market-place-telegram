@@ -2,12 +2,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from './order.repository';
 import { Order } from './order.schema';
+import { OrderItemDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrderService {
   constructor(private readonly orderRepository: OrderRepository) {}
 
-  async create(orderData: Partial<Order>): Promise<Order> {
+  async create(orderData: OrderItemDto): Promise<Order> {
     return this.orderRepository.createOrder(orderData);
   }
 

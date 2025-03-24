@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from './order.schema';
 import { Model } from 'mongoose';
+import { OrderItemDto } from './dto/create-order.dto';
 
 @Injectable()
 export class OrderRepository {
@@ -10,7 +11,7 @@ export class OrderRepository {
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
   ) {}
 
-  async createOrder(orderData: Partial<Order>): Promise<Order> {
+  async createOrder(orderData: OrderItemDto): Promise<Order> {
     const createdOrder = new this.orderModel(orderData);
     return createdOrder.save();
   }

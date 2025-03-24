@@ -11,6 +11,7 @@ import {
 import { OrderService } from './order.service';
 import { Order } from './order.schema';
 import { AuthGuard } from '@nestjs/passport';
+import { OrderItemDto } from './dto/create-order.dto';
 
 @Controller('orders')
 export class OrderController {
@@ -18,7 +19,7 @@ export class OrderController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async create(@Body() createOrderDto: Partial<Order>): Promise<Order> {
+  async create(@Body() createOrderDto: OrderItemDto): Promise<Order> {
     return this.orderService.create(createOrderDto);
   }
 
