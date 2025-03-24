@@ -1,30 +1,16 @@
-import multer, { diskStorage } from 'multer';
-import path from 'node:path';
+import multer from 'multer';
 import { BadRequestException } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-
-const storage = diskStorage({
-  destination: path.join(__dirname, '../../storage'), // Ensure this directory exists
-  filename: (
-    _,
-    file: Express.Multer.File,
-    cb: (error: Error | null, filename: string) => void,
-  ) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const extension = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${extension}`);
-  },
-});
 
 const fileFilter = (
   _req: Request,
   file: Express.Multer.File,
   cb: (error: Error | null, acceptFile: boolean) => void,
 ) => {
-  if (file.mimetype.startsWith('image/')) {
+  if (file.mimetype.startsWith('image/png')) {
     cb(null, true);
   } else {
-    cb(new BadRequestException('Only image files are allowed!'), false);
+    cb(new BadRequestException('Only png image files are allowed!'), false);
   }
 };
 
