@@ -1,128 +1,160 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from 'src/common/cache/redis-service';
-import { Markup, Telegraf } from 'telegraf';
+import { Markup, Telegraf, Context } from 'telegraf';
+import { ProductService } from '../apis/product/product.service';
+
 @Injectable()
 export class TelegramInit {
   private bot: Telegraf;
+  private readonly logger = new Logger(TelegramInit.name);
+
   constructor(
+    private productService: ProductService
     private config: ConfigService,
     private cache: CacheService,
   ) {}
+
   async boot() {
-    this.bot = new Telegraf(this.config.get<string>('telegram_token'));
-    this.runEvents();
-    // await this.bot.launch();
-    process.once('SIGINT', () => this.bot.stop('SIGINT'));
-    process.once('SIGTERM', () => this.bot.stop('SIGTERM'));
-    this.cache.getRedisClient();
+    try {
+      this.bot = new Telegraf(this.config.get<string>('telegram_token'));
+      this.setupEventHandlers();
+      await this.bot.launch();
+      this.logger.log('Telegram bot started successfully');
+
+      process.once('SIGINT', () => this.handleShutdown('SIGINT'));
+      process.once('SIGTERM', () => this.handleShutdown('SIGTERM'));
+      await this.cache.getRedisClient();
+    } catch (error) {
+      this.logger.error('Failed to start telegram bot:', error);
+      throw error;
+    }
   }
 
-  // Main Menu Keyboards
-  sendMainMenuKeyboard(ctx) {
-    ctx.reply(
-      'Welcome to the Main Menu!',
-      Markup.keyboard([['Menu 1'], ['Menu 2'], ['Settings']])
-        .resize() // Optional: Resize keyboard
-        .oneTime(false), // Optional: Keep keyboard persistent (false by default, can be true for one-time)
-    );
+  private async handleShutdown(signal: string) {
+    this.logger.log(`Received ${signal} signal, shutting down bot...`);
+    await this.bot.stop(signal);
   }
 
-  // Menu 1 Keyboard
-  sendMenu1Keyboard(ctx) {
-    ctx.reply(
-      'Menu 1 - Choose an option:',
-      Markup.keyboard([
-        ['Option A', 'Option B'],
-        ['Back to Main Menu'], // Navigation back to main menu
-      ])
-        .resize()
-        .oneTime(), // One-time keyboard for submenus is often a good choice
-    );
-  }
+  private setupEventHandlers() {
+    // Command handlers
+    this.bot.command('start', (ctx) => this.sendMainMenuKeyboard(ctx));
+    this.bot.command('sheps', (ctx) => this.sendMainMenu(ctx));
+    this.bot.command('quit', (ctx) => this.handleQuit(ctx));
 
-  // Menu 2 Keyboard
-  sendMenu2Keyboard(ctx) {
-    ctx.reply(
-      'Menu 2 - Explore these choices:',
-      Markup.keyboard([
-        ['Option C', 'Option D'],
-        ['Back to Main Menu'], // Navigation
-      ])
-        .resize()
-        .oneTime(),
-    );
-  }
+    // Text handlers
+    this.bot.hears('منو فروشنده ها 👤', (ctx) => this.handleSellerMenu(ctx));
+    this.bot.hears('منو خریداران 🛍️', (ctx) => this.handleBuyerMenu(ctx));
+    this.bot.hears('اموزش استفاده 💬', (ctx) => this.handleTutorial(ctx));
+    this.bot.hears('قوانین و مقررات 📜', (ctx) => this.handleRules(ctx));
 
-  // Settings Menu Keyboard (example)
-  sendSettingsKeyboard(ctx) {
-    ctx.reply(
-      'Settings Menu:',
-      Markup.keyboard([['Profile', 'Notifications'], ['Back to Main Menu']])
-        .resize()
-        .oneTime(),
-    );
-  }
-  runEvents() {
-    this.bot.command('quit', async (ctx) => {
-      // Explicit usage
-      await ctx.telegram.leaveChat(ctx.message.chat.id);
+    // Callback query handlers
+    this.bot.action('browse_products', (ctx) => this.handleBrowseProducts(ctx));
+    this.bot.action('view_profile', (ctx) => this.handleViewProfile(ctx));
+    this.bot.action('settings', (ctx) => this.handleSettings(ctx));
+    this.bot.action('help', (ctx) => this.handleHelp(ctx));
 
-      // Using context shortcut
-      await ctx.leaveChat();
+    // Error handler
+    this.bot.catch((err: Error) => {
+      this.logger.error('Telegram bot error:', err);
     });
+  }
 
-    // --- Command Handlers (to initially show menus) ---
+  private async sendMainMenuKeyboard(ctx: Context) {
+    try {
+      await ctx.reply(
+        'به منوی اصلی خوش آمدید!',
+        Markup.keyboard([
+          ['منو فروشنده ها 👤', 'منو خریداران 🛍️'],
+          ['اموزش استفاده 💬', 'قوانین و مقررات 📜'],
+        ])
+          .resize()
+          .oneTime(false),
+      );
+    } catch (error) {
+      this.logger.error('Error sending main menu keyboard:', error);
+    }
+  }
 
-    this.bot.command('start', this.sendMainMenuKeyboard); // /start will show the main menu
-    this.bot.command('mainmenu', this.sendMainMenuKeyboard); // /mainmenu will also show the main menu (optional alias)
-    this.bot.command('menu1', this.sendMenu1Keyboard); // /menu1 will show Menu 1
-    this.bot.command('menu2', this.sendMenu2Keyboard); // /menu2 will show Menu 2
-    this.bot.command('settings', this.sendSettingsKeyboard); // /settings will show Settings menu
+  private async sendMainMenu(ctx: Context) {
+    try {
+      await ctx.replyWithMarkdownV2(
+        '*منوی اصلی*\n\nلطفا یک گزینه را انتخاب کنید:',
+        Markup.inlineKeyboard([
+          [Markup.button.callback('🛍️ مشاهده محصولات', 'browse_products')],
+          [Markup.button.callback('👤 پروفایل من', 'view_profile')],
+          [Markup.button.callback('⚙️ تنظیمات', 'settings')],
+          [Markup.button.callback('❓ راهنما', 'help')],
+        ]),
+      );
+    } catch (error) {
+      this.logger.error('Error sending main menu:', error);
+    }
+  }
 
-    // --- Message Handlers (to handle button clicks from Reply Keyboards) ---
 
-    this.bot.hears('Main Menu', this.sendMainMenuKeyboard); // Handle "Main Menu" button click (goes to main menu)
-
-    this.bot.hears('Menu 1', this.sendMenu1Keyboard); // Handle "Menu 1" button click
-    this.bot.hears('Menu 2', this.sendMenu2Keyboard); // Handle "Menu 2" button click
-    this.bot.hears('Settings', this.sendSettingsKeyboard); // Handle "Settings" button click
-
-    this.bot.hears('Option A', (ctx) => ctx.reply('You selected Option A!'));
-    this.bot.hears('Option B', (ctx) => ctx.reply('You selected Option B!'));
-    this.bot.hears('Option C', (ctx) => ctx.reply('You selected Option C!'));
-    this.bot.hears('Option D', (ctx) => ctx.reply('You selected Option D!'));
-
-    this.bot.hears('Profile', (ctx) =>
-      ctx.reply('Opening Profile Settings...'),
-    ); // Handle "Profile" from Settings Menu
-    this.bot.hears('Notifications', (ctx) =>
-      ctx.reply('Opening Notification Settings...'),
-    );
-    this.bot.on('message', (ctx) => {
-      if ('text' in ctx.message) {
-        // Ensure it's a text message
-        const text = ctx.message.text;
-        const recognizedButtons = [
-          'Menu 1',
-          'Menu 2',
-          'Settings',
-          'Option A',
-          'Option B',
-          'Option C',
-          'Option D',
-          'Back to Main Menu',
-          'Main Menu',
-          'Profile',
-          'Notifications', // List all button texts
-        ];
-        if (!recognizedButtons.includes(text)) {
-          ctx.reply(
-            'Sorry, I did not understand that. Please use the menu options.',
-          );
-          this.sendMainMenuKeyboard(ctx);
-        }
+  //todo fix this
+  private async handleQuit(ctx: Context) {
+    try {
+      if ('message' in ctx && 'chat' in ctx.message) {
+        await ctx.telegram.leaveChat(ctx.message.chat.id);
+        await ctx.leaveChat();
       }
-    });
+    } catch (error) {
+      this.logger.error('Error handling quit command:', error);
+    }
+  }
+
+  private async handleSellerMenu(ctx: Context) {
+    try {
+      await ctx.reply(
+        '🏡 به منوی اصلی خوش آمدید!', // Added home emoji
+        Markup.keyboard([
+          ['🗂️ تمام دسته بندی ها', '📦 تمام محصولات'], // Category and Products emojis
+          ['🔍 جستجوی تکی', '🔬 جستجوی پیشرفته'], // Single and Advanced Search emojis
+          ['❤️ علاقه مندی ها ', '🛒 سبد خرید'], // Favorites and Shopping Cart emojis
+        ])
+          .resize()
+          .oneTime(false),
+      );
+    } catch (error) {
+      this.logger.error('Error sending main menu keyboard:', error);
+      // Consider sending a generic error message to the user, but avoid sensitive details:
+      await ctx.reply(
+        '⚠️ مشکلی در نمایش منو پیش آمد. لطفا دوباره امتحان کنید.',
+      );
+    }
+  }
+
+  private async handleBuyerMenu(ctx: Context) {
+    await ctx.reply('منوی خریداران');
+  }
+
+  private async handleTutorial(ctx: Context) {
+    await ctx.reply('راهنمای استفاده از ربات');
+  }
+
+  private async handleRules(ctx: Context) {
+    await ctx.reply('قوانین و مقررات');
+  }
+
+  private async handleBrowseProducts(ctx: Context) {
+    await ctx.answerCbQuery();
+    await ctx.reply('مشاهده محصولات');
+  }
+
+  private async handleViewProfile(ctx: Context) {
+    await ctx.answerCbQuery();
+    await ctx.reply('پروفایل شما');
+  }
+
+  private async handleSettings(ctx: Context) {
+    await ctx.answerCbQuery();
+    await ctx.reply('تنظیمات');
+  }
+
+  private async handleHelp(ctx: Context) {
+    await ctx.answerCbQuery();
+    await ctx.reply('راهنما');
   }
 }
