@@ -15,12 +15,17 @@ import { AuthModule } from './modules/apis/auth/auth.module';
 
 import { ProductModule } from './modules/apis/product/product.module';
 import { CacheService } from './common/cache/redis-service';
-import { AuthPrefix } from './shared/prefixes/global-prefix';
+import { AuthPrefix } from './common/cache/global-prefix';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { JWTModule } from './shared/jwt-config/jwt-module';
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'), // Path to your static files
+      serveRoot: '/static',  // Optional: URL prefix (e.g., /static/image.jpg)
+      // Other options (see below)
+  }),
     GlobalConfigModule,
     JWTModule,
     RedisCacheModule,

@@ -8,7 +8,7 @@ import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CacheService } from '../../../common/cache/redis-service';
 import { CacheUser } from 'src/common/types/cache-user.type';
-import { Param } from '@nestjs/common';
+import { createCachePreficAuth } from 'src/common/cache/global-prefix';
 
 @Injectable()
 export class UsersService {
@@ -19,10 +19,10 @@ export class UsersService {
   ) {}
 
   async updateProductLimit(telegramId: string) {
-    this.cacheService.get(telegramId).then((item) => {
+    this.cacheService.get(createCachePreficAuth(telegramId)).then((item) => {
       if (item) {
         this.cacheService.hset(
-          telegramId,
+          createCachePreficAuth(telegramId),
           'productLimit',
           (item['productLimit'] || 0) + 1,
         );
