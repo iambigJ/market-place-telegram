@@ -18,13 +18,13 @@ import { CacheService } from './common/cache/redis-service';
 import { AuthPrefix } from './common/cache/global-prefix';
 import { TelegramModule } from './modules/telegram/telegram.module';
 import { JWTModule } from './shared/jwt-config/jwt-module';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'public'), // Path to your static files
-      serveRoot: '/static',  // Optional: URL prefix (e.g., /static/image.jpg)
-      // Other options (see below)
+      rootPath: '/home/iambigj/me/projects/telegram-bot/storage', 
+      serveRoot: '/storage',  
   }),
     GlobalConfigModule,
     JWTModule,
