@@ -29,6 +29,7 @@
     "@nestjs/mongoose": "^11.0.2",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.12",
+    "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.0.7",
     "bcryptjs": "^3.0.2",
     "cache-manager": "^6.4.1",
@@ -42,6 +43,8 @@
     "redis": "^4.7.0",
     "reflect-metadata": "^0.2.2",
     "telegraf": "^4.16.3",
+    "telegraph-node": "^1.0.4",
+    "typescript-eslint": "^8.28.0",
     "yaml": "^2.7.0"
   },
   "devDependencies": {
