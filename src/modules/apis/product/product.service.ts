@@ -37,9 +37,9 @@ export class ProductService {
   generateFileName(fileName: string) {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
     const extension = path.extname(fileName) || '.png';
-    const fileLastName = `${fileName}-${uniqueSuffix}${extension}`;
+    const fileLastName = `${uniqueSuffix}-${fileName}${extension}`;
     const uploadPath = path.join(__dirname, '../../../../storage');
-    return path.join(uploadPath, fileLastName);
+    return { path: path.join(uploadPath, fileLastName), name: fileLastName };
   }
 
   async create(
@@ -48,16 +48,21 @@ export class ProductService {
       images: Array<string>;
     },
     files: Array<Express.Multer.File>,
-  ): Promise<Product> {
-    const fileNames = [];
+  ): Promise<Product & { pathes: string[] }> {
+    const fileNames: string[] = [];
+    const filePathes: string[] = [];
     if (files) {
       for (const file of files) {
-        fileNames.push(this.generateFileName(file.originalname));
+        const { path, name } = this.generateFileName(file.originalname);
+        fileNames.push(name);
+        filePathes.push(path);
       }
     }
     createProductDto.images = fileNames;
     createProductDto.ownerId = telegramIdOwner;
-    return this.productRepository.create(createProductDto);
+    const products = await this.productRepository.create(createProductDto);
+    const result = { ...products, pathes: filePathes };
+    return result;
   }
 
   async findAll(limit = 10, offset = 10) {

@@ -13,12 +13,14 @@ export class CacheService {
     this.context = context;
   }
 
-  async get(item: string) {
+  async get(item: string): Promise<any> {
     const key = `${this.context}.${item}`;
     return await this.cacheManager.get(key).then((res) => {
       try {
-        return JSON.parse(res as any);
+        return JSON.parse(res as string);
       } catch (e) {
+        this.logger.error('Error parsing JSON from cache', e);
+        return null;
         return res;
       }
     });
@@ -59,11 +61,13 @@ export class CacheService {
 
   getRedisClient() {
     try {
+      const z = 's';
+      console.log(this.cacheManager.stores);
       if (
-        this.cacheManager.store &&
-        typeof this.cacheManager.store['getClient'] === 'function'
+        this.cacheManager.stores &&
+        typeof this.cacheManager.stores['getClient'] === 'function'
       ) {
-        return this.cacheManager.store['getClient']();
+        return this.cacheManager.stores['getClient']();
       } else {
         this.logger.warn(
           'getClient() method not available on cacheManager.store.',

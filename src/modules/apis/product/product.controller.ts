@@ -26,6 +26,7 @@ import {
   RequestWithUser,
 } from '../../../common/guards/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
+import path from 'node:path';
 
 @Controller('products')
 export class ProductController {
@@ -51,7 +52,7 @@ export class ProductController {
       .create(req['user']['teleId'], data as any, files)
       .then(async (product) => {
         await this.userService.updateProductLimit(req.user?.telegramId);
-        await this.productService.saveFile(product.images, files);
+        await this.productService.saveFile(product.pathes, files);
         return product;
       });
   }
