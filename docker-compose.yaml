@@ -17,8 +17,11 @@ services:
   redis:
     image: redis:latest
     container_name: redis
+    command: ["redis-server", "--appendonly", "yes"]  # enable AOF persistence
     ports:
       - "6380:6379"
+    volumes:
+      - redis_data:/data    # persist Redis data across restarts
     networks:
       - app-network
     healthcheck:  # Added healthcheck for redis
