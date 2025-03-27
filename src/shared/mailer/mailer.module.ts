@@ -1,13 +1,14 @@
 import { ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { MailerConfig } from '../config/config.types';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
       imports: undefined,
-      useFactory: async (configService: ConfigService) => {
-        const mailConfig = configService.get('Mailer');
+      useFactory: (configService: ConfigService) => {
+        const mailConfig = configService.get<MailerConfig>('Mailer');
         return {
           transport: {
             host: mailConfig.host,
