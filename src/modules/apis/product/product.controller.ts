@@ -15,6 +15,7 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './product.schema';
@@ -26,7 +27,6 @@ import {
   RequestWithUser,
 } from '../../../common/guards/jwt-auth.guard';
 import { UsersService } from '../users/users.service';
-import path from 'node:path';
 
 @Controller('products')
 export class ProductController {
@@ -48,12 +48,13 @@ export class ProductController {
     if (!files || !files.length) {
       throw new BadRequestException('at least one file exepted');
     }
+    if (req.user?.productLimit <= 0)
+      throw new UnauthorizedException('product limit exceeded');
     return await this.productService
-      .create(req['user']['teleId'], data as any, files)
+      .create(req.user?.teleId as string, data as any, files)
       .then(async (product) => {
-        await this.userService.updateProductLimit(req.user?.telegramId);
+        await this.userService.updateProductLimit(req.user?.teleId);
         await this.productService.saveFile(product.pathes, files);
-        return product;
       });
   }
 
@@ -67,6 +68,7 @@ export class ProductController {
   }
 
   @Get(':id')
+  @UseGuards(AuthGuard)
   async findOne(@Param('id') id: string): Promise<Product> {
     return this.productService.findOne(id);
   }
@@ -78,7 +80,7 @@ export class ProductController {
     @Req() req: RequestWithUser,
     @Body() updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    return this.productService.update(req.user.teleId, updateProductDto);
+    return this.productService.update(req?.user?.teleId, updateProductDto);
   }
 
   @UseGuards(AuthGuard)

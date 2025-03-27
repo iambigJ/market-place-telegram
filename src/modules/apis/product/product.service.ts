@@ -36,8 +36,7 @@ export class ProductService {
 
   generateFileName(fileName: string) {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    const extension = path.extname(fileName) || '.png';
-    const fileLastName = `${uniqueSuffix}-${fileName}${extension}`;
+    const fileLastName = `${uniqueSuffix}-${fileName}`;
     const uploadPath = path.join(__dirname, '../../../../storage');
     return { path: path.join(uploadPath, fileLastName), name: fileLastName };
   }
