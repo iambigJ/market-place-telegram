@@ -1,0 +1,27 @@
+url: "localhost"
+port: 27017
+
+logLevel: "info"
+JWT_KEY : 'shapalakh'
+
+MONGO_General:
+  url: "localhost"  # removed "mongodb://"
+  port: 27017
+  # user: "general_mongo_user"
+  # password: "general_mongo_password"
+
+Redis_General:
+  uri: "localhost"  # changed from "redis://localhost"
+  port: 6380
+  # user: "general_redis_user"
+  # password: "general_redis_password"
+
+Mailer:
+  host: "smtp.example.com"
+  port: 587
+  auth: true
+  username: "smtp_user"
+  password: "smtp_password"
+  from: "noreply@example.com"
+
+Telegram_Token:  '7575430823:'
