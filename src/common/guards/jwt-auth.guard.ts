@@ -8,9 +8,16 @@ import {
 import { Request } from 'express';
 import { CacheService } from '../cache/redis-service';
 import { AuthService } from 'src/modules/apis/auth/auth.service';
+import { UserCache } from '../cache/global-prefix';
+import { ConfigService } from '@nestjs/config';
 
 export interface RequestWithUser extends Request {
   user?: any;
+}
+
+interface JwtPayload {
+  teleId: string;
+  role?: string;
 }
 
 @Injectable()
@@ -18,6 +25,7 @@ export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private readonly cacheService: CacheService,
+    private readonly config: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -29,30 +37,25 @@ export class AuthGuard implements CanActivate {
     }
 
     try {
-      console.log(token);
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: 'shapalakh',
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(token, {
+        secret: this.config.get('JWT_KEY'),
       });
-      if (!payload) {
-        throw new UnauthorizedException(
-          'can not find any payload for your token',
-        );
+      console.log(payload);
+      if (!payload || !payload.teleId) {
+        throw new UnauthorizedException('Invalid token payload');
       }
-      const { teleId } = payload as { teleId?: string };
-      if (!teleId) {
-        throw new UnauthorizedException();
-      }
+      const { teleId } = payload;
 
-      const user = await this.cacheService.get(
+      const user = (await this.cacheService.get(
         AuthService.createCachePreficAuth(teleId),
-      );
+      )) as UserCache;
       if (!user || user.teleId !== teleId) {
-        throw new UnauthorizedException('cache not set please login again');
+        throw new UnauthorizedException('Cache not set. Please login again');
       }
 
       request['user'] = user;
-    } catch (er: any) {
-      throw new UnauthorizedException(er);
+    } catch (err: any) {
+      throw new UnauthorizedException(err?.message || 'Unauthorized');
     }
 
     return true;

@@ -86,10 +86,16 @@ export class AuthService {
       productLimit: user.productLimit,
       categoryLimit: user.categoryLimit,
     });
-
-    return {
-      access_token: this.jwtService.sign(payload, { secret: 'shapalakh' }),
-    };
+    try {
+      return {
+        access_token: await this.jwtService.signAsync(payload, {
+          secret: this.configService.get('JWT_KEY'),
+          expiresIn: 24 * 1000 * 60,
+        }),
+      };
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   async verify(token: string) {

@@ -1,22 +1,17 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JWTConfig } from '../config/config.validation';
-import { readFile } from 'fs/promises';
+import { JWTConfig } from '../config/config.types';
 
 @Global()
 @Module({
   imports: [
     JwtModule.registerAsync({
-      imports: [],
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        const config = configService.get<JWTConfig>('JWT_Config'); // Reading the file name from the config service
-        const secretFile = await readFile(config.Key_Path, 'utf8'); // Reading the file asynchronously
+      useFactory: (configService: ConfigService) => {
         return {
-          isGlobal: true,
-          secret: secretFile.trim(), // Use the trimmed secret from the file
-          signOptions: { expiresIn: '24h' }, // JWT expiration
+          secret: configService.get<string>('JWT_KEY'),
+          signOptions: { expiresIn: '24h' },
         };
       },
     }),
