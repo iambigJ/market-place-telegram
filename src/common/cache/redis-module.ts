@@ -2,10 +2,8 @@ import { Module, Global } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
-import { GeneralConfig } from '../../shared/config/config.validation';
+import { RedisConfig } from '../../shared/config/config.types';
 import { CacheService } from './redis-service';
-
-type RedisConfig = GeneralConfig['Redis_General'];
 
 @Global()
 @Module({
@@ -20,7 +18,7 @@ type RedisConfig = GeneralConfig['Redis_General'];
             port: redisConfig?.port,
           },
           password: redisConfig?.password,
-          ttl: 24 * 60 * 60 * 1000,
+          ttl: 24 * 60 * 60,
         });
         return {
           store: () => store,

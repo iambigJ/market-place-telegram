@@ -38,30 +38,8 @@ export class CacheService {
     await this.cacheManager.del(key);
   }
 
-  async hset(item: string, field: string, value: any): Promise<void> {
-    const key = `${this.context}.${item}`;
-    const redisClient = this.getRedisClient();
-
-    if (!redisClient) {
-      this.logger.error('Redis client is not available.');
-      throw new Error('Redis client is not available.');
-    }
-
-    const stringValue = String(value);
-    try {
-      await redisClient.hset(key, field, stringValue);
-    } catch (error) {
-      this.logger.error(
-        `Error during HSET for key: ${key}, field: ${field}`,
-        error,
-      );
-      throw new Error(`Failed to HSET field in cache: ${error.message}`);
-    }
-  }
-
   getRedisClient() {
     try {
-      const z = 's';
       console.log(this.cacheManager.stores);
       if (
         this.cacheManager.stores &&
