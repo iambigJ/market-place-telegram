@@ -12,9 +12,9 @@ export class OrderService {
     return this.orderRepository.createOrder(orderData);
   }
 
-  async findAll(): Promise<Order[]> {
-    return this.orderRepository.findAll();
-  }
+  // async findAll(teleId: string): Promise<Order[]> {
+  //   return this.orderRepository.findByTeleId();
+  // }
 
   async findOne(id: string): Promise<Order> {
     const order = await this.orderRepository.findById(id);

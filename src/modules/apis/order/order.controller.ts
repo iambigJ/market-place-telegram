@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { Order } from './order.schema';
-import { AuthGuard } from '@nestjs/passport';
 import { OrderItemDto } from './dto/create-order.dto';
+import { AuthGuard } from 'src/common/guards/jwt-auth.guard';
 
 @Controller('orders')
 export class OrderController {

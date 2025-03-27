@@ -17,11 +17,14 @@ export class OrderRepository {
   }
 
   async findOrder() {
-    this.orderModel.findOne({ telegramId: 1 }).populate('products').exec();
+    return this.orderModel
+      .findOne({ telegramId: 1 })
+      .populate('products')
+      .exec();
   }
 
-  async findAll(): Promise<Order[]> {
-    return this.orderModel.find().exec();
+  async findByTeleId(id: string): Promise<Order[]> {
+    return this.orderModel.find({}).exec();
   }
 
   async findById(id: string): Promise<Order> {
