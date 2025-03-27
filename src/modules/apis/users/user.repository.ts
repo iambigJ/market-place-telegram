@@ -14,9 +14,13 @@ export class UserRepository {
     return this.userModel.create(createUserDto);
   }
 
-  updateProductLimit(telegramId: string) {
+  async updateProductLimit(telegramId: string): Promise<User | null> {
     return this.userModel
-      .findByIdAndUpdate(telegramId, { $inc: { productLimit: 1 } })
+      .findOneAndUpdate(
+        { telegramId },
+        { $inc: { productLimit: -1 } },
+        { new: true },
+      )
       .exec();
   }
 

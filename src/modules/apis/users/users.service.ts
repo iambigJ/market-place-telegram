@@ -8,7 +8,7 @@ import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CacheService } from '../../../common/cache/redis-service';
 import { CacheUser } from 'src/common/types/cache-user.type';
-import { createCachePreficAuth } from 'src/common/cache/global-prefix';
+import { createCachePreficAuth } from 'src/shared/cache-prefixes';
 
 @Injectable()
 export class UsersService {
@@ -19,15 +19,16 @@ export class UsersService {
   ) {}
 
   async updateProductLimit(telegramId: string) {
-    this.cacheService.get(createCachePreficAuth(telegramId)).then((item) => {
-      if (item) {
-        this.cacheService.hset(
-          createCachePreficAuth(telegramId),
-          'productLimit',
-          (item['productLimit'] || 0) + 1,
-        );
-      }
-    });
+    await this.cacheService
+      .get(createCachePreficAuth(telegramId))
+      .then(async (item) => {
+        if (item) {
+          await this.cacheService.set(createCachePreficAuth(telegramId), {
+            ...item,
+            productLimit: item.productLimit - 1,
+          });
+        }
+      });
     await this.userRepository.updateProductLimit(telegramId).catch((e) => {
       this.logger.error('error update product limit', e?.stack);
       throw new BadRequestException('UpdateProductLimit');
