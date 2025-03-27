@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { TelegramInit } from './modules/telegram/init';
+import { TelegramInit } from './modules/telegram/core/init';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});

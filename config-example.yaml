@@ -25,3 +25,5 @@ Mailer:
   from: "noreply@example.com"
 
 Telegram_Token:  '7575430823:'
+
+STORAGE_SERVE_ROOT: '/home/iambigj/me/projects/telegram-bot/storage'

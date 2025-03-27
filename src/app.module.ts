@@ -12,21 +12,30 @@ import { UsersModule } from './modules/apis/users/users.module';
 import { RedisCacheModule } from './common/cache/redis-module';
 import { mongooseModule } from './shared/mongose/mongose-module';
 import { AuthModule } from './modules/apis/auth/auth.module';
-
 import { ProductModule } from './modules/apis/product/product.module';
 import { CacheService } from './common/cache/redis-service';
-import { AuthPrefix } from './common/cache/global-prefix';
 import { TelegramModule } from './modules/telegram/telegram.module';
-import { JWTModule } from './shared/jwt-config/jwt-module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ConfigService } from '@nestjs/config';
+import { JWTModule } from './shared/jwt-config/jwt-module';
+import { AuthPrefix } from './shared/cache-prefixes';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: '/home/iambigj/me/projects/telegram-bot/storage', 
-      serveRoot: '/storage',  
-  }),
     GlobalConfigModule,
+    ServeStaticModule.forRootAsync({
+      imports: [GlobalConfigModule],
+      useFactory: (configService: ConfigService) => [
+        {
+          rootPath: configService.get<string>('STORAGE_PATH'),
+          serveRoot: configService.get<string>(
+            'STORAGE_SERVE_ROOT',
+            '/storage',
+          ),
+        },
+      ],
+      inject: [ConfigService],
+    }),
     JWTModule,
     RedisCacheModule,
     mongooseModule(),
