@@ -33,6 +33,10 @@ export class TelegramHandlers {
     await this.sendMainMenuKeyboard(ctx);
   }
 
+  async notImplemented(ctx: Context) {
+    await ctx.reply('این ایتم هنوز پیاده سازی نشده است');
+  }
+
   async handleQuit(ctx: Context) {
     try {
       if ('message' in ctx && 'chat' in ctx.message) {
@@ -93,7 +97,7 @@ export class TelegramHandlers {
   `;
   }
 
-  private createProductKeyboard(product: any) {
+  private createProductShowKeyboard(product: any) {
     return Markup.inlineKeyboard([
       [
         Markup.button.callback(
@@ -126,7 +130,7 @@ export class TelegramHandlers {
       await Promise.all(
         products.map(async (product: any) => {
           try {
-            const keyboard = this.createProductKeyboard(product);
+            const keyboard = this.createProductShowKeyboard(product);
             await ctx.replyWithPhoto(
               {
                 url: 'http://192.168.43.229:3003/storage/png-transparent-iphone-13-pro-back.png-1742730966407-387775944.png',
@@ -179,22 +183,5 @@ export class TelegramHandlers {
     }
   }
 
-  async handleViewProfile(ctx: Context) {
-    await ctx.answerCbQuery();
-    await ctx.reply('پروفایل شما');
-  }
 
-  async handleSettings(ctx: Context) {
-    await ctx.answerCbQuery();
-    await ctx.reply('تنظیمات');
-  }
-
-  async handleHelp(ctx: Context) {
-    await ctx.answerCbQuery();
-    await ctx.reply('راهنما');
-  }
-
-  async handleCallbackQuery(ctx: Context) {
-    console.log(ctx);
-  }
 }
