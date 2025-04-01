@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { TelegramInit } from './core/init';
+import { TelegramInit } from './core/telegra.core';
 import { UsersModule } from '../apis/users/users.module';
 import { ProductModule } from '../apis/product/product.module';
 
