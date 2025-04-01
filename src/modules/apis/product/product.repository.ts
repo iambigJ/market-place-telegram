@@ -11,15 +11,15 @@ export class ProductRepository {
     @InjectModel(Product.name) private productModel: Model<ProductDocument>,
   ) {}
 
-  async create(createProductDto: CreateProductDto): Promise<Product> {
+  async create(createProductDto: CreateProductDto): Promise<ProductDocument> {
     return this.productModel.create(createProductDto);
   }
 
-  async findAll(limit: number, offset: number): Promise<Product[]> {
+  async findAll(limit: number, offset: number): Promise<ProductDocument[]> {
     return this.productModel.find({}, {}, { limit, offset }).exec();
   }
 
-  async findOne(id: string): Promise<Product> {
+  async findOne(id: string): Promise<ProductDocument> {
     return this.productModel.findById(id).exec();
   }
 

@@ -6,7 +6,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { ProductRepository } from './product.repository';
-import { Product } from './product.schema';
+import { Product, ProductDocument } from './product.schema';
 import { CreateProductDto } from './dto/create.product.dto';
 import { MyLogger } from '../../../common/custom-logger/custom-logger';
 import fs from 'fs';
@@ -64,7 +64,7 @@ export class ProductService {
     return result;
   }
 
-  async findAll(limit = 10, offset = 10) {
+  async findAll(limit = 10, offset = 10): Promise<ProductDocument[]> {
     this.logger.log('Fetching all products');
     return this.productRepository.findAll(limit, offset).catch((e) => {
       this.logger.error('error getting product', e);

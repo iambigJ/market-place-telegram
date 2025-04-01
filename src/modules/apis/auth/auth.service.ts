@@ -14,7 +14,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { MyLogger } from '../../../common/custom-logger/custom-logger';
 import { LoginDto } from './auth.dto';
 import { ConfigService } from '@nestjs/config';
-import { CachePrefixes } from 'src/shared/cache-prefixes';
+import { CachePrefixes } from 'src/common/cache/cache-prefixes';
 
 interface VerificationTokenPayload {
   teleId: string;

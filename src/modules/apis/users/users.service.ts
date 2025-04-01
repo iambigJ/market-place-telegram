@@ -8,7 +8,7 @@ import { UserRepository } from './user.repository';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CacheService } from '../../../common/cache/redis-service';
 import { CacheUser } from 'src/common/types/cache-user.type';
-import { createCachePreficAuth } from 'src/shared/cache-prefixes';
+import { createCachePreficAuth } from 'src/common/cache/cache-prefixes';
 
 @Injectable()
 export class UsersService {

@@ -2,8 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 import { Category } from '../categories/category.schema';
 
-export type ProductDocument = Product & Document;
-
+import { HydratedDocument } from 'mongoose';
 @Schema({ timestamps: true, strict: 'throw', versionKey: false })
 export class Product {
   @Prop({ required: true, type: String })
@@ -36,3 +35,5 @@ export class Product {
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);
+// export type ProductDocument = Document
+export type ProductDocument = HydratedDocument<Product>;
