@@ -8,7 +8,7 @@ import {
 import { Request } from 'express';
 import { CacheService } from '../cache/redis-service';
 import { AuthService } from 'src/modules/apis/auth/auth.service';
-import { UserCache } from '../../shared/cache-prefixes';
+import { UserCache } from '../cache/cache-prefixes';
 import { ConfigService } from '@nestjs/config';
 
 export interface RequestWithUser extends Request {

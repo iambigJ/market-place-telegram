@@ -1,7 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JWTConfig } from '../config/config.types';
 
 @Global()
 @Module({
