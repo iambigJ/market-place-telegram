@@ -1,14 +1,64 @@
-import Context from 'telegraf/typings/context';
-import { CallbackActionEnums } from '../../helper/telegram-actions';
+import { Injectable, Logger } from '@nestjs/common';
+import { Context, Markup } from 'telegraf';
+import {
+  CallbackActionEnums,
+  showProductpreviousPage,
+  showProductsNextPage,
+} from '../../helper/telegram-actions';
 import {
   TelegramMessages,
+  TelegramKeyboards,
   TelegramProductActions,
   TelegramProductButtons,
 } from '../../helper/telegram.constants';
-import { Markup } from 'telegraf';
+import {
+  buildAddToCartAction,
+  buildAddToFavoritesAction,
+  buildViewProductAction,
+} from '../../helper/telegram-actions';
+import mongose from 'mongoose';
 
-export class TelegramActionsMenu {
-  static async handlerNextPreviousPage(
+@Injectable()
+export class TelegramMenuService {
+  private readonly logger = new Logger(TelegramMenuService.name);
+
+  async handleMainMenu(ctx: Context) {
+    try {
+      await ctx.reply(
+        TelegramMessages.WELCOME_MAIN,
+        Markup.keyboard(TelegramKeyboards.MAIN_MENU).resize(),
+      );
+    } catch (error) {
+      this.logger.error('Main menu error:', error);
+      await ctx.reply(TelegramMessages.ERROR_MENU);
+    }
+  }
+
+  async handleBuyerMenu(ctx: Context) {
+    try {
+      await ctx.reply(
+        TelegramMessages.WELCOME_BUYER,
+        Markup.keyboard(TelegramKeyboards.SELLER_MENU).resize(),
+      );
+    } catch (error) {
+      this.logger.error('Buyer menu error:', error);
+      await ctx.reply(TelegramMessages.ERROR_MENU);
+    }
+  }
+
+  async handleSellerMenu(ctx: Context) {
+    try {
+      await ctx.reply(
+        TelegramMessages.WELCOME_SELLER,
+        Markup.keyboard(TelegramKeyboards.SELLER_MENU).resize().oneTime(false),
+      );
+    } catch (error) {
+      this.logger.error('Seller menu error:', error);
+      await ctx.reply(TelegramMessages.ERROR_MENU);
+    }
+  }
+
+  async sendProductPaginationButtoms(
     limit: number,
     offset: number,
     ctx: Context,
@@ -18,47 +68,52 @@ export class TelegramActionsMenu {
       Markup.inlineKeyboard([
         Markup.button.callback(
           'صفحه بعد ⬅️',
-          this.showProductsNextPage(limit, offset),
+          showProductsNextPage(limit, offset),
         ),
         Markup.button.callback(
           'صفحه قبل ➡️',
-          this.showProductpreviousPage(limit, offset),
+          showProductpreviousPage(limit, offset),
         ),
       ]),
     );
   }
 
-  static showProductsNextPage(limit: number, offset: number) {
+  showProductpreviousPage(limit: number, offset: number) {
+    offset = Math.max(0, offset - limit);
+    return JSON.stringify({
+      action: CallbackActionEnums.ProductShowAll,
+      data: { limit, offset },
+    });
+  }
+
+  showProductsNextPage(limit: number, offset: number) {
     return JSON.stringify({
       action: CallbackActionEnums.ProductShowAll,
       data: { limit, offset: offset + limit },
     });
   }
 
-  static showProductpreviousPage(limit: number, offset: number) {
-    offset = Math.max(0, offset - limit);
-    return JSON.stringify({
-      action: CallbackActionEnums.ProductShowAll,
-      data: { limit, offset: offset },
-    });
+  encodeIdToBase64Url(objectId: mongose.Types.ObjectId): string {
+    const id = objectId.toString();
+    return Buffer.from(id).toString('base64url');
   }
 
-  static createProductShowKeyboard(productId: string) {
+  createProductShowKeyboard(productId: string) {
     return Markup.inlineKeyboard([
       [
         Markup.button.callback(
           TelegramProductButtons.ADD_TO_CART,
-          `${TelegramProductActions.ADD_TO_CART}${productId}`,
+          buildAddToCartAction(productId),
         ),
         Markup.button.callback(
           TelegramProductButtons.ADD_TO_FAVORITES,
-          `${TelegramProductActions.ADD_TO_FAVORITES}${productId}`,
+          buildAddToFavoritesAction(productId),
         ),
       ],
       [
         Markup.button.callback(
           TelegramProductButtons.VIEW_PRODUCT,
-          `${TelegramProductActions.VIEW_PRODUCT}${productId}`,
+          buildViewProductAction(productId),
         ),
       ],
     ]);

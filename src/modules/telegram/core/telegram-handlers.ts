@@ -1,7 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
+import { CallbackQuery } from 'telegraf/typings/core/types/typegram';
+
 import { TelegramProductService } from './providers/telegram-product.service';
-import { TelegramMenuService } from './services/telegram-menu.service';
+import { TelegramMenuService } from './providers/telegram-menu.service';
 import { TelegramMessages } from '../helper/telegram.constants';
 import {
   CallbackActionEnums,
@@ -18,36 +20,121 @@ export class TelegramHandlers {
   ) {}
 
   async handleStart(ctx: Context) {
-    await this.menuService.handleMainMenu(ctx);
+    try {
+      await this.menuService.handleMainMenu(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleStart:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
   }
 
   async handleBrowseProducts(ctx: Context) {
-    await this.productService.handleShowProducts(10, 0, ctx);
+    try {
+      await this.productService.handleShowProducts(ctx, 10, 0);
+    } catch (error) {
+      this.logger.error('Error in handleBrowseProducts:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
   }
 
   async callBackQuery(ctx: Context) {
     try {
-      const callbackData = JSON.parse(
-        ctx.callbackQuery?.data,
-      ) as telegramActionType;
-      const { action, data } = callbackData;
+      if (!ctx.callbackQuery) {
+        throw new Error('No callback query found');
+      }
 
+      const query = ctx.callbackQuery as CallbackQuery;
+      const data = query.data;
+      
+      if (!data) {
+        throw new Error('No callback query data found');
+      }
+
+      const callbackData = JSON.parse(data) as telegramActionType;
+      const { action, data: actionData } = callbackData;
+      
+      await ctx.answerCbQuery();
+      
       switch (action) {
         case CallbackActionEnums.ProductShowAll:
-          return this.productService.handleShowProducts(
-            data?.limit as number,
-            data?.offset as number,
+          await this.productService.handleShowProducts(
             ctx,
+            actionData?.limit ?? 10,
+            actionData?.offset ?? 0,
           );
-        case CallbackActionEnums.AddToCart:
-          return this.productService.handleAddToCart(data.productId, ctx);
-        case CallbackActionEnums.AddToFavorites:
-          return this.productService.handleAddToFavorites(data.productId, ctx);
-        case CallbackActionEnums.ViewProduct:
-          return this.productService.handleViewProduct(data.productId, ctx);
+          break;
+        default:
+          this.logger.warn(`Unhandled callback action: ${action}`);
+          await this.notImplemented(ctx);
       }
     } catch (error) {
       this.logger.error('Callback query error:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async notImplemented(ctx: Context) {
+    try {
+      if (ctx.callbackQuery) {
+        await ctx.answerCbQuery();
+      }
+      await ctx.reply(TelegramMessages.NOT_IMPLEMENTED ?? 'Not implemented yet');
+    } catch (error) {
+      this.logger.error('Error in notImplemented handler:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async handleQuit(ctx: Context) {
+    try {
+      await this.notImplemented(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleQuit:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async handleBuyerMenu(ctx: Context) {
+    try {
+      await this.menuService.handleBuyerMenu(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleBuyerMenu:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async handleSellerMenu(ctx: Context) {
+    try {
+      await this.notImplemented(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleSellerMenu:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async handleTutorial(ctx: Context) {
+    try {
+      await this.notImplemented(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleTutorial:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async handleRules(ctx: Context) {
+    try {
+      await this.notImplemented(ctx);
+    } catch (error) {
+      this.logger.error('Error in handleRules:', error);
+      await ctx.reply(TelegramMessages.ErrorGenegral);
+    }
+  }
+
+  async sendMainMenuKeyboard(ctx: Context) {
+    try {
+      await this.menuService.handleMainMenu(ctx);
+    } catch (error) {
+      this.logger.error('Error in sendMainMenuKeyboard:', error);
       await ctx.reply(TelegramMessages.ErrorGenegral);
     }
   }

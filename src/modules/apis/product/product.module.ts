@@ -2,13 +2,27 @@ import { Module } from '@nestjs/common';
 import { ProductController } from './product.controller';
 import { ProductRepository } from './product.repository';
 import { ProductService } from './product.service';
-import { MongooseModule } from '@nestjs/mongoose';
-import { Product, ProductSchema } from './product.schema';
+import {
+  getConnectionToken,
+  InjectConnection,
+  MongooseModule,
+} from '@nestjs/mongoose';
+import { setupProductSchemaAutoIncrement, Product } from './product.schema';
 import { UsersModule } from '../users/users.module';
+import { Connection } from 'mongoose';
+
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
+    MongooseModule.forFeatureAsync([
+      {
+        name: Product.name,
+        useFactory: (connection: Connection) => {
+          return setupProductSchemaAutoIncrement(connection);
+        },
+        inject: [getConnectionToken()],
+      },
+    ]),
     UsersModule,
   ],
   controllers: [ProductController],

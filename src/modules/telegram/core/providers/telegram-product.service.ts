@@ -7,7 +7,8 @@ import {
   ProductDocument,
 } from 'src/modules/apis/product/product.schema';
 import { TelegramMessages } from '../../helper/telegram.constants';
-import { TelegramActionsMenu } from './telegram-menu.service';
+import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
+import { TelegramMenuService } from './telegram-menu.service';
 
 @Injectable()
 export class TelegramProductService {
@@ -16,6 +17,7 @@ export class TelegramProductService {
   private readonly logger = new Logger(TelegramProductService.name);
 
   constructor(
+    private menuService: TelegramMenuService,
     private productService: ProductService,
     private config: ConfigService,
   ) {
@@ -41,10 +43,10 @@ export class TelegramProductService {
   }
 
   async handleShowProducts(
-    limit: number,
-    offset: number,
     ctx: Context,
-  ): Promise<void> {
+    limit: number = 10,
+    offset: number = 10,
+  ): Promise<any> {
     try {
       const products = await this.fetchProducts(limit, offset);
       if (!products?.length) {
@@ -52,8 +54,8 @@ export class TelegramProductService {
       }
 
       await this.sendProductsToChat(products, ctx);
-      await this.sendPaginationBuxttons(ctx, offset, limit);
-    } catch (error) {
+      await this.menuService.sendProductPaginationButtoms(offset, limit, ctx);
+    } catch (error: any) {
       this.logger.error('Error in handleShowProducts:', error);
       await ctx.reply(TelegramMessages.ErrorProductShow);
     }
@@ -77,14 +79,16 @@ export class TelegramProductService {
           { url },
           {
             caption: this.formatProductCaption(product),
+            //@ts-ignore
+            ...this.menuService.createProductShowKeyboard(100000000),
             parse_mode: 'MarkdownV2',
-            ...TelegramActionsMenu.createProductShowKeyboard(
-              product._id.toString(),
-            ),
           },
         );
       } catch (error) {
-        this.logger.error(`Error sending product ${product._id}:`, error);
+        this.logger.error(
+          `Error sending product ${product._id.toString()}:`,
+          error,
+        );
       }
     }
   }

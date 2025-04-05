@@ -18,7 +18,7 @@ import { TelegramModule } from './modules/telegram/telegram.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigService } from '@nestjs/config';
 import { JWTModule } from './shared/jwt-config/jwt-module';
-import { AuthPrefix } from './shared/cache-prefixes';
+import { AuthPrefix } from './common/cache/cache-prefixes';
 
 @Module({
   imports: [

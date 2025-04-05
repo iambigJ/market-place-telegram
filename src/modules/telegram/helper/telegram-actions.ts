@@ -30,23 +30,30 @@ export function showProductpreviousPage(limit: number, offset: number) {
   });
 }
 
-export function buildAddToCartAction(productId: string): string {
-  return JSON.stringify({
+export const decodeBase64UrlId = (encodedId: string): string => {
+  return Buffer.from(encodedId, 'base64url').toString('ascii');
+};
+
+export const buildAddToCartAction = (encodedId: string): string => {
+  const action: telegramActionType = {
     action: CallbackActionEnums.AddToCart,
-    data: { productId },
-  });
-}
+    data: { productId: encodedId }
+  };
+  return JSON.stringify(action);
+};
 
-export function buildAddToFavoritesAction(productId: string): string {
-  return JSON.stringify({
+export const buildAddToFavoritesAction = (encodedId: string): string => {
+  const action: telegramActionType = {
     action: CallbackActionEnums.AddToFavorites,
-    data: { productId },
-  });
-}
+    data: { productId: encodedId }
+  };
+  return JSON.stringify(action);
+};
 
-export function buildViewProductAction(productId: string): string {
-  return JSON.stringify({
+export const buildViewProductAction = (encodedId: string): string => {
+  const action: telegramActionType = {
     action: CallbackActionEnums.ViewProduct,
-    data: { productId },
-  });
-}
+    data: { productId: encodedId }
+  };
+  return JSON.stringify(action);
+};

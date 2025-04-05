@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Telegraf, Context } from 'telegraf';
 import { CacheService } from 'src/common/cache/redis-service';
-import { Telegraf } from 'telegraf';
-import { ProductService } from '../../apis/product/product.service';
 import { TelegramHandlers } from './telegram-handlers';
 import { TelegramCommands, TelegramHears } from '../helper/telegram.constants';
 import { UsersService } from 'src/modules/apis/users/users.service';
 import { OrderService } from 'src/modules/apis/order/order.service';
 import { CategoryService } from 'src/modules/apis/categories/categoy.service';
+import { TelegramProductService } from './providers/telegram-product.service';
 
 @Injectable()
 export class TelegramInit {
@@ -15,22 +15,30 @@ export class TelegramInit {
   private readonly logger = new Logger(TelegramInit.name);
 
   constructor(
-    private productService: ProductService,
-    private userSerivce: UsersService,
+    private productService: TelegramProductService,
+    private userService: UsersService,
     private orderService: OrderService,
     private categoryService: CategoryService,
     private config: ConfigService,
     private cache: CacheService,
+    private handlers: TelegramHandlers,
   ) {}
 
-  async boot() {
+  async boot(): Promise<void> {
     try {
-      this.bot = new Telegraf(this.config.get<string>('Telegram_Token'));
+      const token = this.config.get<string>('Telegram_Token');
+      if (!token) {
+        throw new Error('Telegram token not found in configuration');
+      }
+      this.bot = new Telegraf(token);
       this.setupEventHandlers();
       await this.bot.launch();
       this.logger.log('Telegram bot started successfully');
+      
+      // Set up graceful shutdown
       process.once('SIGINT', () => this.handleShutdown('SIGINT'));
       process.once('SIGTERM', () => this.handleShutdown('SIGTERM'));
+      
       await this.cache.getRedisClient();
     } catch (error) {
       this.logger.error('Failed to start telegram bot:', error);
@@ -38,46 +46,48 @@ export class TelegramInit {
     }
   }
 
-  handleShutdown(signal: string) {
+  handleShutdown(signal: string): void {
     this.logger.log(`Received ${signal} signal, shutting down bot...`);
     this.bot.stop(signal);
   }
 
-  private setupEventHandlers() {
-    const handlers = new TelegramHandlers(
-      this.productService,
-      this.logger,
-      this.config,
-    );
-    this.bot.on('callback_query', (ctx: any) => {
-      handlers.callBackQuery(ctx);
+  private setupEventHandlers(): void {
+    this.bot.on('callback_query', (ctx: Context) => {
+      this.handlers.callBackQuery(ctx);
     });
 
-    this.bot.command(TelegramCommands.SHOW_PRODUCT, (ctx) =>
-      handlers.handleBrowseProducts(ctx),
-    );
+    // Command handlers
     this.bot.command(TelegramCommands.START, (ctx) =>
-      handlers.handleStart(ctx),
+      this.handlers.handleStart(ctx),
     );
-    this.bot.command(TelegramCommands.QUIT, (ctx) => handlers.handleQuit(ctx));
+    this.bot.command(TelegramCommands.QUIT, (ctx) =>
+      this.handlers.handleQuit(ctx),
+    );
+    
+    // Text message handlers
     this.bot.hears(TelegramHears.BUYER_MENU, (ctx) =>
-      handlers.handleBuyerMenu(ctx),
+      this.handlers.handleBuyerMenu(ctx),
     );
     this.bot.hears(TelegramHears.SELLER_MENU, (ctx) =>
-      handlers.handleSellerMenu(ctx),
+      this.handlers.handleSellerMenu(ctx),
     );
     this.bot.hears(TelegramHears.TUTORIAL, (ctx) =>
-      handlers.handleTutorial(ctx),
+      this.handlers.handleTutorial(ctx),
     );
-    this.bot.hears(TelegramHears.RULES, (ctx) => handlers.handleRules(ctx));
+    this.bot.hears(TelegramHears.RULES, (ctx) =>
+      this.handlers.handleRules(ctx),
+    );
     this.bot.hears(TelegramHears.BROWSE_PRODUCTS, (ctx) =>
-      handlers.handleBrowseProducts(ctx),
+      this.productService.handleShowProducts(ctx),
     );
-    this.bot.hears(TelegramHears.HELP, (ctx) => handlers.notImplemented(ctx));
+    this.bot.hears(TelegramHears.HELP, (ctx) =>
+      this.handlers.notImplemented(ctx),
+    );
     this.bot.hears(TelegramHears.BACK_TO_MAIN, (ctx) =>
-      handlers.sendMainMenuKeyboard(ctx),
+      this.handlers.sendMainMenuKeyboard(ctx),
     );
 
+    // Global error handler
     this.bot.catch((err: Error) => {
       this.logger.error('Telegram bot error:', err);
     });

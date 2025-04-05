@@ -19,6 +19,7 @@ export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async saveFile(filesPath: string[], filesData: Array<Express.Multer.File>) {
+    const tempfile = 
     const promises = filesPath.map((path, i) => {
       return new Promise<void>((resolve, reject) => {
         const stream = fs.createWriteStream(path);
