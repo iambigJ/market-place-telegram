@@ -1,13 +1,13 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { Logger } from '@nestjs/common';
+import Redis from 'ioredis';
 
-@Injectable()
 export class CacheService {
   private context: string;
-  private readonly logger = new Logger(CacheService.name); // Optional logger
+  private readonly logger: Logger; // Optional logger
 
-  constructor(@Inject(CACHE_MANAGER) public cacheManager: Cache) {}
+  constructor(private cacheManager: Redis) {
+    this.logger = new Logger(CacheService.name);
+  }
 
   setContext(context: string) {
     this.context = context;
@@ -17,7 +17,7 @@ export class CacheService {
     const key = `${this.context}.${item}`;
     return await this.cacheManager.get(key).then((res) => {
       try {
-        return JSON.parse(res as string);
+        return JSON.parse(res);
       } catch (e) {
         this.logger.error('Error parsing JSON from cache', e);
         return null;
@@ -36,25 +36,5 @@ export class CacheService {
   async delete(item: string) {
     const key = `${this.context}.${item}`;
     await this.cacheManager.del(key);
-  }
-
-  getRedisClient() {
-    try {
-      console.log(this.cacheManager.stores);
-      if (
-        this.cacheManager.stores &&
-        typeof this.cacheManager.stores['getClient'] === 'function'
-      ) {
-        return this.cacheManager.stores['getClient']();
-      } else {
-        this.logger.warn(
-          'getClient() method not available on cacheManager.store.',
-        );
-        return null;
-      }
-    } catch (error) {
-      this.logger.error('Error getting Redis client from cacheManager:', error); // Optional error logging
-      return null;
-    }
   }
 }
