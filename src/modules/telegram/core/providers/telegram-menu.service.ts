@@ -98,7 +98,7 @@ export class TelegramMenuService {
     return Buffer.from(id).toString('base64url');
   }
 
-  createProductShowKeyboard(productId: string) {
+  ProductShowInline(productId: string) {
     return Markup.inlineKeyboard([
       [
         Markup.button.callback(

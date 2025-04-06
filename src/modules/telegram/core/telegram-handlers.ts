@@ -15,7 +15,7 @@ export class TelegramHandlers {
   private readonly logger = new Logger(TelegramHandlers.name);
 
   constructor(
-    private readonly productService: TelegramProductService,
+    public readonly productService: TelegramProductService,
     private readonly menuService: TelegramMenuService,
   ) {}
 
@@ -28,41 +28,35 @@ export class TelegramHandlers {
     }
   }
 
-  async handleBrowseProducts(ctx: Context) {
-    try {
-      await this.productService.handleShowProducts(ctx, 10, 0);
-    } catch (error) {
-      this.logger.error('Error in handleBrowseProducts:', error);
-      await ctx.reply(TelegramMessages.ErrorGenegral);
-    }
-  }
-
   async callBackQuery(ctx: Context) {
     try {
       if (!ctx.callbackQuery) {
         throw new Error('No callback query found');
       }
 
-      const query = ctx.callbackQuery as CallbackQuery;
-      const data = query.data;
-      
+      const query = ctx.callbackQuery;
+      const data = query?.data as any;
+
       if (!data) {
         throw new Error('No callback query data found');
       }
 
       const callbackData = JSON.parse(data) as telegramActionType;
       const { action, data: actionData } = callbackData;
-      
+
       await ctx.answerCbQuery();
-      
+
       switch (action) {
         case CallbackActionEnums.ProductShowAll:
-          await this.productService.handleShowProducts(
+          await this.productService.handleShowAllProducts(
             ctx,
             actionData?.limit ?? 10,
             actionData?.offset ?? 0,
           );
           break;
+
+          case: CallbackActionEnums.ProductFullView:
+          await this.productService.
         default:
           this.logger.warn(`Unhandled callback action: ${action}`);
           await this.notImplemented(ctx);
@@ -78,7 +72,9 @@ export class TelegramHandlers {
       if (ctx.callbackQuery) {
         await ctx.answerCbQuery();
       }
-      await ctx.reply(TelegramMessages.NOT_IMPLEMENTED ?? 'Not implemented yet');
+      await ctx.reply(
+        TelegramMessages.NOT_IMPLEMENTED ?? 'Not implemented yet',
+      );
     } catch (error) {
       this.logger.error('Error in notImplemented handler:', error);
       await ctx.reply(TelegramMessages.ErrorGenegral);

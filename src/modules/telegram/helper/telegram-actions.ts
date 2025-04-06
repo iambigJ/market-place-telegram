@@ -9,6 +9,7 @@ export type telegramActionType = {
 };
 
 export enum CallbackActionEnums {
+  ProductFullView = 'ProductFullView',
   ProductShowAll = 'ProductShowAll',
   AddToCart = 'AddToCart',
   AddToFavorites = 'AddToFavorites',
@@ -37,7 +38,7 @@ export const decodeBase64UrlId = (encodedId: string): string => {
 export const buildAddToCartAction = (encodedId: string): string => {
   const action: telegramActionType = {
     action: CallbackActionEnums.AddToCart,
-    data: { productId: encodedId }
+    data: { productId: encodedId },
   };
   return JSON.stringify(action);
 };
@@ -45,7 +46,7 @@ export const buildAddToCartAction = (encodedId: string): string => {
 export const buildAddToFavoritesAction = (encodedId: string): string => {
   const action: telegramActionType = {
     action: CallbackActionEnums.AddToFavorites,
-    data: { productId: encodedId }
+    data: { productId: encodedId },
   };
   return JSON.stringify(action);
 };
@@ -53,7 +54,7 @@ export const buildAddToFavoritesAction = (encodedId: string): string => {
 export const buildViewProductAction = (encodedId: string): string => {
   const action: telegramActionType = {
     action: CallbackActionEnums.ViewProduct,
-    data: { productId: encodedId }
+    data: { productId: encodedId },
   };
   return JSON.stringify(action);
 };

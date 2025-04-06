@@ -38,11 +38,31 @@ export class TelegramProductService {
     `;
   }
 
+  private formatFullProductCaption(product: Product): string {
+    const escapedName = this.escapeText(product.name);
+    const escapedPrice = this.escapeText(product.price as any);
+    const escapedDescription = this.escapeText(product.description);
+    const escapedAttributes = product.attributes
+      .map((attr) => this.escapeText(attr))
+      .join(', ');
+    const escapedStock = product.stock
+      ? this.escapeText(product.stock)
+      : 'نامشخص';
+
+    return `
+📦 *${escapedName}*
+💰 قیمت: ${escapedPrice} تومان
+📝 توضیحات: ${escapedDescription}
+🏷️ مشخصات: ${escapedAttributes || 'ندارد'}
+📊 موجودی: ${escapedStock}
+    `;
+  }
+
   private escapeText(text: string | number): string {
     return String(text).replace(/[_*[\]()~`>#+\-=|{}.!]/g, '\\$&');
   }
 
-  async handleShowProducts(
+  async handleShowAllProducts(
     ctx: Context,
     limit: number = 10,
     offset: number = 10,
@@ -50,16 +70,38 @@ export class TelegramProductService {
     try {
       const products = await this.fetchProducts(limit, offset);
       if (!products?.length) {
-        return await ctx.reply(TelegramMessages.NoProducts);
+        return await ctx.reply(TelegramMessages.NO_PRODUCTS);
       }
 
       await this.sendProductsToChat(products, ctx);
       await this.menuService.sendProductPaginationButtoms(offset, limit, ctx);
     } catch (error: any) {
       this.logger.error('Error in handleShowProducts:', error);
-      await ctx.reply(TelegramMessages.ErrorProductShow);
+      await ctx.reply(TelegramMessages.ERROR_PRODUCT_SHOW);
     }
   }
+
+
+  async handleShowFullProducts(
+    ctx: Context,
+    limit: number = 10,
+    offset: number = 10,
+  ): Promise<any> {
+    // try {
+    //   const products = await this.fetchProducts(limit, offset);
+    //   if (!products?.length) {
+    //     return await ctx.reply(TelegramMessages.NO_PRODUCTS);
+    //   }
+
+    //   await this.sendProductsToChat(products, ctx);
+    //   await this.menuService.sendProductPaginationButtoms(offset, limit, ctx);
+    // } catch (error: any) {
+    //   this.logger.error('Error in handleShowProducts:', error);
+    //   await ctx.reply(TelegramMessages.ERROR_PRODUCT_SHOW);
+    // }
+  }
+
+
 
   private async fetchProducts(
     limit: number,
@@ -79,8 +121,7 @@ export class TelegramProductService {
           { url },
           {
             caption: this.formatProductCaption(product),
-            //@ts-ignore
-            ...this.menuService.createProductShowKeyboard(100000000),
+            ...this.menuService.ProductShowInline(product._id.toString()),
             parse_mode: 'MarkdownV2',
           },
         );

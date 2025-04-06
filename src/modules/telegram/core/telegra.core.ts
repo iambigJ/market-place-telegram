@@ -1,12 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf, Context } from 'telegraf';
-import { CacheService } from 'src/common/cache/redis-service';
 import { TelegramHandlers } from './telegram-handlers';
 import { TelegramCommands, TelegramHears } from '../helper/telegram.constants';
-import { UsersService } from 'src/modules/apis/users/users.service';
-import { OrderService } from 'src/modules/apis/order/order.service';
-import { CategoryService } from 'src/modules/apis/categories/categoy.service';
 import { TelegramProductService } from './providers/telegram-product.service';
 
 @Injectable()
@@ -16,11 +12,7 @@ export class TelegramInit {
 
   constructor(
     private productService: TelegramProductService,
-    private userService: UsersService,
-    private orderService: OrderService,
-    private categoryService: CategoryService,
     private config: ConfigService,
-    private cache: CacheService,
     private handlers: TelegramHandlers,
   ) {}
 
@@ -34,12 +26,8 @@ export class TelegramInit {
       this.setupEventHandlers();
       await this.bot.launch();
       this.logger.log('Telegram bot started successfully');
-      
-      // Set up graceful shutdown
       process.once('SIGINT', () => this.handleShutdown('SIGINT'));
       process.once('SIGTERM', () => this.handleShutdown('SIGTERM'));
-      
-      await this.cache.getRedisClient();
     } catch (error) {
       this.logger.error('Failed to start telegram bot:', error);
       throw error;
@@ -51,9 +39,9 @@ export class TelegramInit {
     this.bot.stop(signal);
   }
 
-  private setupEventHandlers(): void {
+  private setupEventHandlers(): void {setupEventHandlers(): void {
     this.bot.on('callback_query', (ctx: Context) => {
-      this.handlers.callBackQuery(ctx);
+    this.handlers.callBackQuery(ctx);
     });
 
     // Command handlers
@@ -63,7 +51,7 @@ export class TelegramInit {
     this.bot.command(TelegramCommands.QUIT, (ctx) =>
       this.handlers.handleQuit(ctx),
     );
-    
+
     // Text message handlers
     this.bot.hears(TelegramHears.BUYER_MENU, (ctx) =>
       this.handlers.handleBuyerMenu(ctx),
@@ -77,17 +65,17 @@ export class TelegramInit {
     this.bot.hears(TelegramHears.RULES, (ctx) =>
       this.handlers.handleRules(ctx),
     );
-    this.bot.hears(TelegramHears.BROWSE_PRODUCTS, (ctx) =>
-      this.productService.handleShowProducts(ctx),
-    );
     this.bot.hears(TelegramHears.HELP, (ctx) =>
       this.handlers.notImplemented(ctx),
+  );
+  this.bot.hears(TelegramHears.BACK_TO_MAIN, (ctx) =>
+    this.handlers.sendMainMenuKeyboard(ctx),
     );
-    this.bot.hears(TelegramHears.BACK_TO_MAIN, (ctx) =>
-      this.handlers.sendMainMenuKeyboard(ctx),
+    //prdocut section
+    this.bot.hears(TelegramHears.BROWSE_PRODUCTS, (ctx) =>
+      this.productService.handleShowAllProducts(ctx),
     );
 
-    // Global error handler
     this.bot.catch((err: Error) => {
       this.logger.error('Telegram bot error:', err);
     });
