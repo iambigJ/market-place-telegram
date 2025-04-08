@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -24,7 +25,7 @@ interface JwtPayload {
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly cacheService: CacheService,
+    @Inject('RedisCacheService') private readonly cacheService: CacheService,
     private readonly config: ConfigService,
   ) {}
 
@@ -46,9 +47,9 @@ export class AuthGuard implements CanActivate {
       }
       const { teleId } = payload;
 
-      const user = (await this.cacheService.get(
+      const user = await this.cacheService.get(
         AuthService.createCachePreficAuth(teleId),
-      )) as UserCache;
+      );
       if (!user || user.teleId !== teleId) {
         throw new UnauthorizedException('Cache not set. Please login again');
       }

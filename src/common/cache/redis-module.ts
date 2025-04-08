@@ -1,17 +1,16 @@
 import { Module, Global, Provider } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { RedisConfig } from '../../shared/config/config.types';
 import { CacheService } from './redis-service';
 import Redis, { RedisOptions } from 'ioredis';
 import { Logger } from '@nestjs/common';
 
 const RedisClientProvider: Provider = {
-  provide: CACHE_MANAGER,
+  provide: 'RedisCacheService',
   useFactory: (configService: ConfigService) => {
     const logger = new Logger('RedisClient');
     const redisConfig = configService.get<RedisConfig>('Redis_General');
-
+    console.log(redisConfig);
     const redisOptions: RedisOptions = {
       host: redisConfig?.uri,
       port: redisConfig?.port,
@@ -49,7 +48,6 @@ const RedisClientProvider: Provider = {
     });
 
     const store = new CacheService(redisClient);
-
     return store;
   },
   inject: [ConfigService],
@@ -58,7 +56,7 @@ const RedisClientProvider: Provider = {
 @Global()
 @Module({
   imports: [ConfigModule],
-  providers: [RedisClientProvider, CacheService],
-  exports: [CacheService],
+  providers: [RedisClientProvider],
+  exports: [RedisClientProvider],
 })
 export class RedisCacheModule {}
