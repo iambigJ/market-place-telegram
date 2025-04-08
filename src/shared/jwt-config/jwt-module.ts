@@ -1,5 +1,5 @@
 import { Global, Module } from '@nestjs/common';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 @Global()
@@ -8,14 +8,18 @@ import { ConfigService } from '@nestjs/config';
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_KEY');
+        if (!secret) {
+          throw new Error('JWT_KEY is not defined in environment variables');
+        }
         return {
-          secret: configService.get<string>('JWT_KEY'),
+          secret,
           signOptions: { expiresIn: '24h' },
+          global: true,
         };
       },
     }),
   ],
-  providers: [JwtService],
-  exports: [JwtService],
+  exports: [JwtModule],
 })
 export class JWTModule {}
