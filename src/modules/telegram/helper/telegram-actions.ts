@@ -9,52 +9,64 @@ export type telegramActionType = {
 };
 
 export enum CallbackActionEnums {
-  ProductFullView = 'ProductFullView',
-  ProductShowAll = 'ProductShowAll',
-  AddToCart = 'AddToCart',
-  AddToFavorites = 'AddToFavorites',
-  ViewProduct = 'ViewProduct',
+  ProductShowAll = 'product_show_all',
+  ViewProduct = 'view_product',
+  AddToCart = 'add_to_cart',
+  AddToFavorites = 'add_to_favorites',
 }
 
-export function showProductsNextPage(limit: number, offset: number) {
-  return JSON.stringify({
-    action: CallbackActionEnums.ProductShowAll,
-    data: { limit, offset: offset + 10 },
-  });
+export interface TelegramActionData {
+  action: CallbackActionEnums;
+  productId: string;
 }
 
-export function showProductpreviousPage(limit: number, offset: number) {
-  if (offset == 0) return;
+export interface TelegramPaginationData {
+  action: CallbackActionEnums;
+  data: {
+    limit: number;
+    offset: number;
+  };
+}
+
+export const showProductsNextPage = (limit: number, offset: number): string => {
   return JSON.stringify({
     action: CallbackActionEnums.ProductShowAll,
-    data: { limit, offset: offset - 10 },
+    data: { limit, offset: offset + limit },
   });
-}
+};
+
+export const showProductpreviousPage = (
+  limit: number,
+  offset: number,
+): string => {
+  offset = Math.max(0, offset - limit);
+  return JSON.stringify({
+    action: CallbackActionEnums.ProductShowAll,
+    data: { limit, offset },
+  });
+};
 
 export const decodeBase64UrlId = (encodedId: string): string => {
   return Buffer.from(encodedId, 'base64url').toString('ascii');
 };
 
-export const buildAddToCartAction = (encodedId: string): string => {
-  const action: telegramActionType = {
-    action: CallbackActionEnums.AddToCart,
-    data: { productId: encodedId },
-  };
-  return JSON.stringify(action);
-};
-
-export const buildAddToFavoritesAction = (encodedId: string): string => {
-  const action: telegramActionType = {
-    action: CallbackActionEnums.AddToFavorites,
-    data: { productId: encodedId },
-  };
-  return JSON.stringify(action);
-};
-
-export const buildViewProductAction = (encodedId: string): string => {
-  const action: telegramActionType = {
+export const buildViewProductAction = (productId: string): string => {
+  return JSON.stringify({
     action: CallbackActionEnums.ViewProduct,
-    data: { productId: encodedId },
-  };
-  return JSON.stringify(action);
+    productId,
+  });
+};
+
+export const buildAddToCartAction = (productId: string): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.AddToCart,
+    productId,
+  });
+};
+
+export const buildAddToFavoritesAction = (productId: string): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.AddToFavorites,
+    productId,
+  });
 };

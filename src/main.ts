@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import { TelegramInit } from './modules/telegram/core/telegra.core';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
@@ -17,10 +16,10 @@ async function bootstrap() {
   );
 
   app.enableCors();
-  app.get(TelegramInit).boot().then();
 
-  await app.listen(3003);
+  await app.listen(3003).then(() => {
+    console.log('We Are the Servants The Soul Of  Binary');
+  });
 }
-bootstrap().then(() => {
-  console.log('We Are the Servants The Soul Of  Binary');
-});
+
+bootstrap()

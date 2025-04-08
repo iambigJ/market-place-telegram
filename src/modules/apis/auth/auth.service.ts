@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -20,6 +21,13 @@ interface VerificationTokenPayload {
   teleId: string;
 }
 
+interface CacheUser {
+  teleId: string;
+  role: string;
+  productLimit: number;
+  categoryLimit: number;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new MyLogger(AuthService.name);
@@ -39,21 +47,23 @@ export class AuthService {
   };
 
   constructor(
-    private jwtService: JwtService,
-    private usersService: UsersService,
-    private cache: CacheService,
-    private mailService: MailerService,
-    private configService: ConfigService,
+    @Inject('RedisCacheService')
+    private readonly cache: CacheService,
+    private readonly jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly mailService: MailerService,
+    private readonly configService: ConfigService,
   ) {
     this.verificationLinkBaseUrl = this.configService.get<string>(
       'VERIFICATION_LINK_BASE_URL',
     );
     this.fromEmail =
       this.configService.get<string>('FROM_EMAIL') || 'testi@email.com';
+    this.cache.setContext(CachePrefixes.auth);
   }
 
   static createCachePreficAuth(teleId: string) {
-    return CachePrefixes.auth.concat('.', teleId);
+    return teleId;
   }
 
   async login(loginDto: LoginDto) {
@@ -80,12 +90,15 @@ export class AuthService {
       role: user.role,
     };
 
-    await this.cache.set(AuthService.createCachePreficAuth(user.telegramId), {
+    const cacheUser: CacheUser = {
       teleId: user.telegramId,
       role: user.role,
       productLimit: user.productLimit,
       categoryLimit: user.categoryLimit,
-    });
+    };
+
+    await this.cache.set(AuthService.createCachePreficAuth(user.telegramId), cacheUser);
+
     try {
       return {
         access_token: await this.jwtService.signAsync(payload, {
@@ -93,8 +106,9 @@ export class AuthService {
           expiresIn: 24 * 1000 * 60,
         }),
       };
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      this.logger.error('Error generating JWT token', error);
+      throw new InternalServerErrorException('Failed to generate access token');
     }
   }
 
@@ -103,9 +117,9 @@ export class AuthService {
     try {
       decodedToken =
         await this.jwtService.verifyAsync<VerificationTokenPayload>(token);
-    } catch (error) {
+    } catch (error: any) {
       const message =
-        error.name === 'TokenExpiredError'
+        error?.name === 'TokenExpiredError'
           ? 'Invalid or expired verification token.'
           : 'Failed to verify token.';
       throw new UnauthorizedException(message);
@@ -162,11 +176,11 @@ export class AuthService {
         message:
           'Registration successful. Please check your email to verify your account.',
       };
-    } catch (error) {
-      this.logger.error('Error during signup', error?.stack);
+    } catch (error: any) {
       if (error instanceof UnprocessableEntityException) {
         throw error;
       }
+      this.logger.error('Error during signup', error?.stack);
       throw new InternalServerErrorException(
         'Failed to complete signup. Please try again later.',
       );
@@ -206,9 +220,9 @@ export class AuthService {
 
   private async deleteCache(telegramId: string): Promise<void> {
     try {
-      await this.cache.delete(telegramId);
+      await this.cache.delete(AuthService.createCachePreficAuth(telegramId));
     } catch (error) {
-      this.logger.error('Error deleting cache', { error, telegramId });
+      this.logger.error('Error deleting cache', { telegramId });
     }
   }
 
@@ -224,7 +238,7 @@ export class AuthService {
       });
       this.logger.debug('Verification email sent successfully', { email });
     } catch (error) {
-      this.logger.error('Error sending verification email', { error, email });
+      this.logger.error('Error sending verification email', { email });
       throw new InternalServerErrorException(
         this.ERROR_MESSAGES.FAILED_SEND_VERIFICATION,
       );

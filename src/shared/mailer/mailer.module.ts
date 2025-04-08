@@ -8,7 +8,7 @@ import { MailerConfig } from '../config/config.types';
     MailerModule.forRootAsync({
       imports: undefined,
       useFactory: (configService: ConfigService) => {
-        const mailConfig = configService.get<MailerConfig>('Mailer');
+            const mailConfig = configService.get<MailerConfig>('Mailer');
         return {
           transport: {
             host: mailConfig.host,

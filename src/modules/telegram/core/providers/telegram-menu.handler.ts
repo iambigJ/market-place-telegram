@@ -8,7 +8,6 @@ import {
 import {
   TelegramMessages,
   TelegramKeyboards,
-  TelegramProductActions,
   TelegramProductButtons,
 } from '../../helper/telegram.constants';
 import {
@@ -17,12 +16,14 @@ import {
   buildViewProductAction,
 } from '../../helper/telegram-actions';
 import mongose from 'mongoose';
+import { ITelegramMenuService } from '../../interfaces/telegram.interface';
+import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
 
 @Injectable()
-export class TelegramMenuService {
+export class TelegramMenuService implements ITelegramMenuService {
   private readonly logger = new Logger(TelegramMenuService.name);
 
-  async handleMainMenu(ctx: Context) {
+  async sendMainMenuKeyboard(ctx: Context): Promise<void> {
     try {
       await ctx.reply(
         TelegramMessages.WELCOME_MAIN,
@@ -34,11 +35,11 @@ export class TelegramMenuService {
     }
   }
 
-  async handleBuyerMenu(ctx: Context) {
+  async sendBuyerMenuKeyboard(ctx: Context): Promise<void> {
     try {
       await ctx.reply(
         TelegramMessages.WELCOME_BUYER,
-        Markup.keyboard(TelegramKeyboards.SELLER_MENU).resize(),
+        Markup.keyboard(TelegramKeyboards.BUYER_MENU).resize(),
       );
     } catch (error) {
       this.logger.error('Buyer menu error:', error);
@@ -46,7 +47,7 @@ export class TelegramMenuService {
     }
   }
 
-  async handleSellerMenu(ctx: Context) {
+  async sendSellerMenuKeyboard(ctx: Context): Promise<void> {
     try {
       await ctx.reply(
         TelegramMessages.WELCOME_SELLER,
@@ -59,23 +60,28 @@ export class TelegramMenuService {
   }
 
   async sendProductPaginationButtoms(
-    limit: number,
     offset: number,
+    limit: number,
     ctx: Context,
-  ) {
-    await ctx.reply(
-      TelegramMessages.ProductMovingPages,
-      Markup.inlineKeyboard([
-        Markup.button.callback(
-          'صفحه بعد ⬅️',
-          showProductsNextPage(limit, offset),
-        ),
-        Markup.button.callback(
-          'صفحه قبل ➡️',
-          showProductpreviousPage(limit, offset),
-        ),
-      ]),
-    );
+  ): Promise<void> {
+    try {
+      await ctx.reply(
+        TelegramMessages.PRODUCT_MOVING_PAGES,
+        Markup.inlineKeyboard([
+          Markup.button.callback(
+            'صفحه بعد ⬅️',
+            showProductsNextPage(limit, offset),
+          ),
+          Markup.button.callback(
+            'صفحه قبل ➡️',
+            showProductpreviousPage(limit, offset),
+          ),
+        ]),
+      );
+    } catch (error) {
+      this.logger.error('Product pagination error:', error);
+      await ctx.reply(TelegramMessages.ERROR_GENERAL);
+    }
   }
 
   showProductpreviousPage(limit: number, offset: number) {
@@ -98,23 +104,23 @@ export class TelegramMenuService {
     return Buffer.from(id).toString('base64url');
   }
 
-  ProductShowInline(productId: string) {
+  ProductShowInline(productId: string): any {
     return Markup.inlineKeyboard([
       [
-        Markup.button.callback(
-          TelegramProductButtons.ADD_TO_CART,
-          buildAddToCartAction(productId),
-        ),
-        Markup.button.callback(
-          TelegramProductButtons.ADD_TO_FAVORITES,
-          buildAddToFavoritesAction(productId),
-        ),
+        {
+          text: TelegramProductButtons.ADD_TO_CART,
+          callback_data: buildAddToCartAction(productId.toString()),
+        },
+        {
+          text: TelegramProductButtons.ADD_TO_FAVORITES,
+          callback_data: buildAddToFavoritesAction(productId.toString()),
+        },
       ],
       [
-        Markup.button.callback(
-          TelegramProductButtons.VIEW_PRODUCT,
-          buildViewProductAction(productId),
-        ),
+        {
+          text: TelegramProductButtons.VIEW_PRODUCT,
+          callback_data: buildViewProductAction(productId.toString()),
+        },
       ],
     ]);
   }

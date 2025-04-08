@@ -19,7 +19,6 @@ export class ProductService {
   constructor(private readonly productRepository: ProductRepository) {}
 
   async saveFile(filesPath: string[], filesData: Array<Express.Multer.File>) {
-    const tempfile = 
     const promises = filesPath.map((path, i) => {
       return new Promise<void>((resolve, reject) => {
         const stream = fs.createWriteStream(path);
@@ -73,7 +72,7 @@ export class ProductService {
     });
   }
 
-  async findOne(id: string): Promise<Product> {
+  async findOne(id: string): Promise<ProductDocument> {
     const product = await this.productRepository.findOne(id);
     if (!product) {
       this.logger.warn(`Product with id ${id} not found`);

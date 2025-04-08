@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -15,7 +16,7 @@ export class UsersService {
   private logger = new MyLogger(UsersService.name);
   constructor(
     private readonly userRepository: UserRepository,
-    private cacheService: CacheService,
+    @Inject('RedisCacheService') private cacheService: CacheService,
   ) {}
 
   async updateProductLimit(telegramId: string) {

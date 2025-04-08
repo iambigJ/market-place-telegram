@@ -1,4 +1,5 @@
 import {
+  Inject,
   MiddlewareConsumer,
   Module,
   NestModule,
@@ -27,7 +28,7 @@ import { AuthPrefix } from './common/cache/cache-prefixes';
       imports: [GlobalConfigModule],
       useFactory: (configService: ConfigService) => [
         {
-          rootPath: configService.get<string>('STORAGE_PATH'),
+          rootPath: '/home/iambigj/me/projects/mongo-market-place/storage',
           serveRoot: configService.get<string>(
             'STORAGE_SERVE_ROOT',
             '/storage',
@@ -36,8 +37,9 @@ import { AuthPrefix } from './common/cache/cache-prefixes';
       ],
       inject: [ConfigService],
     }),
-    JWTModule,
     RedisCacheModule,
+
+    JWTModule,
     mongooseModule(),
     UsersModule,
     AuthModule,
@@ -52,7 +54,7 @@ import { AuthPrefix } from './common/cache/cache-prefixes';
   ],
 })
 export class AppModule implements NestModule, OnModuleInit {
-  constructor(private cache: CacheService) {}
+  constructor(@Inject('RedisCacheService') private cache: CacheService) {}
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(LoggerMiddleware).forRoutes('*');
   }
