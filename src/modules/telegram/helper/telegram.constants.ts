@@ -13,7 +13,7 @@ export enum TelegramCommands {
 export enum TelegramHears {
   BUYER_MENU = 'منو خریداران 🛍️',
   SELLER_MENU = 'منو فروشنده ها 👤',
-  TUTORIAL = 'اموزش استفاده 💬',
+  BYVIP = 'خرید اشتراک ویژه 💬',
   RULES = 'قوانین و مقررات 📜',
   BROWSE_PRODUCTS = '📦 تمام محصولات',
   HELP = 'help',
@@ -50,6 +50,8 @@ export enum TelegramProductActions {
  */
 export const TelegramProductButtons = {
   ADD_TO_CART: '🛒 افزودن به سبد خرید',
+  ADD_TO_CART_CONFIRM: 'ثبت سفارش',
+  ADD_TO_CART_CONFIRM_CANCEL: 'انصراف',
   ADD_TO_FAVORITES: '❤️ علاقه‌مندی‌ها',
   VIEW_PRODUCT: 'مشاهده کامل',
 } as const;
@@ -70,7 +72,7 @@ export const TelegramKeyboards: Record<
 > = {
   MAIN_MENU: [
     [TelegramHears.SELLER_MENU, TelegramHears.BUYER_MENU],
-    [TelegramHears.TUTORIAL, TelegramHears.RULES],
+    [TelegramHears.BYVIP, TelegramHears.RULES],
   ],
   SELLER_MENU: [
     ['🗂️ تمام دسته بندی ها', TelegramHears.BROWSE_PRODUCTS],
@@ -80,7 +82,7 @@ export const TelegramKeyboards: Record<
   ],
   BUYER_MENU: [
     ['🗂️ تمام دسته بندی ها', TelegramHears.BROWSE_PRODUCTS],
-    ['🔍 جستجوی محصول', '🛒 سبد خرید'],
+    ['🔍 جستجوی محصول', '🔬 جستجوی پیشرفته'],
     ['❤️ علاقه مندی ها', '📋 سفارشات من'],
     [TelegramHears.BACK_TO_MAIN],
   ],

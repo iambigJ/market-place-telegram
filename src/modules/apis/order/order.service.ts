@@ -3,13 +3,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { OrderRepository } from './order.repository';
 import { Order } from './order.schema';
 import { OrderItemDto } from './dto/create-order.dto';
+import { ProductService } from '../product/product.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly orderRepository: OrderRepository) {}
+  constructor(
+    private readonly orderRepository: OrderRepository,
+    private productService: ProductService,
+  ) {}
 
   async create(orderData: OrderItemDto): Promise<Order> {
-    return this.orderRepository.createOrder(orderData);
+    const productOwnerId = await this.productService.findOne(
+      orderData.productId,
+    );
+    return this.orderRepository.createOrder({
+      ...orderData,
+      ownerId: productOwnerId._id,
+    });
   }
 
   // async findAll(teleId: string): Promise<Order[]> {

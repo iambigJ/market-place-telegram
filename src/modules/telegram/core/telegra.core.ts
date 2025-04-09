@@ -6,9 +6,9 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf, Context } from 'telegraf';
-import { TelegramHandlers } from './providers/telegram-general.handler';
+import { TelegramHandlers } from '../providers/telegram-general.handler';
 import { TelegramCommands, TelegramHears } from '../helper/telegram.constants';
-import { TelegramProductHandler } from './providers/telegram-main.handler';
+import { TelegramProductHandler } from '../providers/telegram-main.handler';
 import {
   ITelegramHandler,
   ITelegramProductService,
@@ -99,7 +99,7 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
       }
     });
 
-    this.bot.hears(TelegramHears.TUTORIAL, async (ctx) => {
+    this.bot.hears(TelegramHears.BYVIP, async (ctx) => {
       try {
         await this.handlers.handleTutorial(ctx);
       } catch (error) {

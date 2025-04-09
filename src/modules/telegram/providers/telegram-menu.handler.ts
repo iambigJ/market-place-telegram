@@ -1,23 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context, Markup } from 'telegraf';
 import {
-  CallbackActionEnums,
+  buildAddToCartConfirmAction,
   showProductpreviousPage,
   showProductsNextPage,
-} from '../../helper/telegram-actions';
+} from '../helper/telegram-actions';
 import {
   TelegramMessages,
   TelegramKeyboards,
   TelegramProductButtons,
-} from '../../helper/telegram.constants';
+} from '../helper/telegram.constants';
 import {
   buildAddToCartAction,
   buildAddToFavoritesAction,
   buildViewProductAction,
-} from '../../helper/telegram-actions';
-import mongose from 'mongoose';
-import { ITelegramMenuService } from '../../interfaces/telegram.interface';
-import { InlineKeyboardMarkup } from 'telegraf/typings/core/types/typegram';
+  buildAddToCartConfirmCancelAction,
+} from '../helper/telegram-actions';
+import mongoose from 'mongoose';
+import { ITelegramMenuService } from '../interfaces/telegram.interface';
 
 @Injectable()
 export class TelegramMenuService implements ITelegramMenuService {
@@ -84,42 +84,57 @@ export class TelegramMenuService implements ITelegramMenuService {
     }
   }
 
-  showProductpreviousPage(limit: number, offset: number) {
-    offset = Math.max(0, offset - limit);
-    return JSON.stringify({
-      action: CallbackActionEnums.ProductShowAll,
-      data: { limit, offset },
-    });
-  }
-
-  showProductsNextPage(limit: number, offset: number) {
-    return JSON.stringify({
-      action: CallbackActionEnums.ProductShowAll,
-      data: { limit, offset: offset + limit },
-    });
-  }
-
-  encodeIdToBase64Url(objectId: mongose.Types.ObjectId): string {
+  encodeIdToBase64Url(objectId: mongoose.Types.ObjectId): string {
     const id = objectId.toString();
     return Buffer.from(id).toString('base64url');
   }
 
-  ProductShowInline(productId: string): any {
+  ProductShowInline(productId: number): any {
     return Markup.inlineKeyboard([
       [
         {
           text: TelegramProductButtons.ADD_TO_CART,
-          callback_data: buildAddToCartAction(productId.toString()),
+          callback_data: buildAddToCartAction(productId),
         },
         {
           text: TelegramProductButtons.ADD_TO_FAVORITES,
-          callback_data: buildAddToFavoritesAction(productId.toString()),
+          callback_data: buildAddToFavoritesAction(productId),
         },
       ],
       [
         {
           text: TelegramProductButtons.VIEW_PRODUCT,
-          callback_data: buildViewProductAction(productId.toString()),
+          callback_data: buildViewProductAction(productId),
+        },
+      ],
+    ]);
+  }
+
+  ProductFullShowInline(productId: number): any {
+    return Markup.inlineKeyboard([
+      [
+        {
+          text: TelegramProductButtons.ADD_TO_CART,
+          callback_data: buildAddToCartAction(productId),
+        },
+        {
+          text: TelegramProductButtons.ADD_TO_FAVORITES,
+          callback_data: buildAddToFavoritesAction(productId),
+        },
+      ],
+    ]);
+  }
+
+  ProductAddToCartInline(productId: number): any {
+    return Markup.inlineKeyboard([
+      [
+        {
+          text: TelegramProductButtons.ADD_TO_CART_CONFIRM,
+          callback_data: buildAddToCartConfirmAction(productId),
+        },
+        {
+          text: TelegramProductButtons.ADD_TO_CART_CONFIRM_CANCEL,
+          callback_data: buildAddToCartConfirmCancelAction(productId),
         },
       ],
     ]);

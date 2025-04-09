@@ -13,11 +13,13 @@ export enum CallbackActionEnums {
   ViewProduct = 'view_product',
   AddToCart = 'add_to_cart',
   AddToFavorites = 'add_to_favorites',
+  AddToCartConfirm = 'add_to_cart_confirm',
+  AddToCartConfirmCancel = 'add_to_cart_confirm_cancel',
 }
 
 export interface TelegramActionData {
   action: CallbackActionEnums;
-  productId: string;
+  productId: number;
 }
 
 export interface TelegramPaginationData {
@@ -50,23 +52,39 @@ export const decodeBase64UrlId = (encodedId: string): string => {
   return Buffer.from(encodedId, 'base64url').toString('ascii');
 };
 
-export const buildViewProductAction = (productId: string): string => {
+export const buildViewProductAction = (productId: number): string => {
   return JSON.stringify({
     action: CallbackActionEnums.ViewProduct,
     productId,
   });
 };
 
-export const buildAddToCartAction = (productId: string): string => {
+export const buildAddToCartAction = (productId: number): string => {
   return JSON.stringify({
     action: CallbackActionEnums.AddToCart,
     productId,
   });
 };
 
-export const buildAddToFavoritesAction = (productId: string): string => {
+export const buildAddToFavoritesAction = (productId: number): string => {
   return JSON.stringify({
     action: CallbackActionEnums.AddToFavorites,
+    productId,
+  });
+};
+
+export const buildAddToCartConfirmAction = (productId: number): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.AddToCartConfirm,
+    productId,
+  });
+};
+
+export const buildAddToCartConfirmCancelAction = (
+  productId: number,
+): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.AddToCartConfirmCancel,
     productId,
   });
 };

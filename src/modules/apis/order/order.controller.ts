@@ -23,11 +23,11 @@ export class OrderController {
     return this.orderService.create(createOrderDto);
   }
 
-  @Get()
-  @UseGuards(AuthGuard)
-  async findAll(): Promise<Order[]> {
-    return;
-  }
+  // @Get()
+  // @UseGuards(AuthGuard)
+  // async findAll(): Promise<Order[]> {
+  //   return;
+  // }
 
   @Get(':id')
   @UseGuards(AuthGuard)

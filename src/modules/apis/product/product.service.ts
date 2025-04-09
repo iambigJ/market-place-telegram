@@ -12,6 +12,7 @@ import { MyLogger } from '../../../common/custom-logger/custom-logger';
 import fs from 'fs';
 import path from 'node:path';
 import { UpdateProductDto } from './dto/update.product.dto';
+import { Types } from 'mongoose';
 
 @Injectable()
 export class ProductService {
@@ -72,7 +73,7 @@ export class ProductService {
     });
   }
 
-  async findOne(id: string): Promise<ProductDocument> {
+  async findOne(id: number | Types.ObjectId): Promise<ProductDocument> {
     const product = await this.productRepository.findOne(id);
     if (!product) {
       this.logger.warn(`Product with id ${id} not found`);

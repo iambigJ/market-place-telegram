@@ -28,7 +28,7 @@ import { AuthPrefix } from './common/cache/cache-prefixes';
       imports: [GlobalConfigModule],
       useFactory: (configService: ConfigService) => [
         {
-          rootPath: '/home/iambigj/me/projects/mongo-market-place/storage',
+          rootPath: '/home/iambigj/me/projects/telegram-bot/storage',
           serveRoot: configService.get<string>(
             'STORAGE_SERVE_ROOT',
             '/storage',

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product, ProductDocument } from './product.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateProductDto } from './dto/create.product.dto';
 import { UpdateProductDto } from './dto/update.product.dto';
 
@@ -19,7 +19,7 @@ export class ProductRepository {
     return this.productModel.find({}, {}, { limit, offset }).exec();
   }
 
-  async findOne(id: string): Promise<ProductDocument> {
+  async findOne(id: number | Types.ObjectId): Promise<ProductDocument> {
     return this.productModel.findById(id).exec();
   }
 

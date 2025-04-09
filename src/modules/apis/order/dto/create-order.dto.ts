@@ -12,13 +12,13 @@ import {
 import { Types } from 'mongoose';
 
 export class OrderItemDto {
-  @IsMongoId()
+  @IsNumber()
   @IsNotEmpty()
-  productId: Types.ObjectId;
+  productId: number;
 
-  @IsMongoId()
+  @IsString()
   @IsNotEmpty()
-  ownerId: Types.ObjectId;
+  buyerId: string;
 
   @IsNumber()
   @IsNotEmpty()
