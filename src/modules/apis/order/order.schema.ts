@@ -7,11 +7,14 @@ export type OrderDocument = Order & Document;
 
 @Schema({ _id: false })
 export class OrderItem {
-  @Prop({ required: true, type: Types.ObjectId, ref: Product.name })
-  productId: Types.ObjectId;
+  @Prop({ required: true, type: Number, ref: Product.name })
+  productId: number;
 
-  @Prop({ required: true, type: Types.ObjectId, ref: User.name, index: true })
-  ownerId: Types.ObjectId;
+  @Prop({ required: true, type: String, ref: User.name, index: true })
+  ownerId: string;
+
+  @Prop({ required: true, type: String })
+  buyerId: string;
 
   @Prop({ required: true, default: 1, min: 1 })
   quantity: number;
