@@ -13,7 +13,7 @@ export interface ITelegramHandler {
   callBackQuery(ctx: Context): Promise<void>;
   handleProductAction(
     ctx: Context,
-    productId: string,
+    productId: number,
     action: string,
   ): Promise<void>;
 }
@@ -25,16 +25,19 @@ export interface ITelegramProductService {
     limit?: number,
     offset?: number,
   ): Promise<void>;
-  handleShowFullProduct(ctx: Context, productId: string): Promise<void>;
-  handleAddToCart(ctx: Context, productId: string): Promise<void>;
-  handleAddToFavorites(ctx: Context, productId: string): Promise<void>;
+  handleShowFullProduct(ctx: Context, productId: number): Promise<void>;
+  handleAddToCart(ctx: Context, productId: number): Promise<void>;
+  handleAddToFavorites(ctx: Context, productId: number): Promise<void>;
+  handleAddToCartConfirm(ctx: Context, productId: number): Promise<void>;
 }
 
 export interface ITelegramMenuService {
   sendMainMenuKeyboard(ctx: Context): Promise<void>;
   sendBuyerMenuKeyboard(ctx: Context): Promise<void>;
   sendSellerMenuKeyboard(ctx: Context): Promise<void>;
-  ProductShowInline(productId: string): InlineKeyboardMarkup;
+  ProductShowInline(productId: number): InlineKeyboardMarkup;
+  ProductFullShowInline(productId: number): InlineKeyboardMarkup;
+  ProductAddToCartInline(productId: number): InlineKeyboardMarkup;
   sendProductPaginationButtoms(
     offset: number,
     limit: number,

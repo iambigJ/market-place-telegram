@@ -1,27 +1,38 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
-import { ITelegramProductService } from '../../interfaces/telegram.interface';
-import { ProductService } from '../../../apis/product/product.service';
+import { ITelegramProductService } from '../interfaces/telegram.interface';
+import { ProductService } from '../../apis/product/product.service';
 import { ConfigService } from '@nestjs/config';
-import { ProductDocument } from '../../../apis/product/product.schema';
-import { TelegramMessages } from '../../helper/telegram.constants';
+import { ProductDocument } from '../../apis/product/product.schema';
+import { TelegramMessages } from '../helper/telegram.constants';
 import { TelegramMenuService } from './telegram-menu.handler';
+import { OrderService } from 'src/modules/apis/order/order.service';
+import { OrderItemDto } from 'src/modules/apis/order/dto/create-order.dto';
+import { UsersService } from '../../apis/users/users.service';
+import { Telegraf } from 'telegraf';
 
 @Injectable()
 export class TelegramProductHandler implements ITelegramProductService {
   private prefixImagePath: string;
   private defaultImagePath: string;
   private readonly logger = new Logger(TelegramProductHandler.name);
+  private bot: Telegraf;
 
   constructor(
     private readonly menuService: TelegramMenuService,
     private readonly productService: ProductService,
     private readonly config: ConfigService,
+    private readonly orderService: OrderService,
+    private readonly usersService: UsersService,
   ) {
     const ip = this.config.get<string>('host_ip');
     const port = this.config.get<string>('port');
     this.prefixImagePath = `http://${ip}:${port}/storage`;
     this.defaultImagePath = `${this.prefixImagePath}/${this.config.get('host_defaultImage')}`;
+    const token = this.config.get<string>('Telegram_Token');
+    if (token) {
+      this.bot = new Telegraf(token);
+    }
   }
 
   async handleShowAllProducts(ctx: Context): Promise<void> {
@@ -55,43 +66,66 @@ export class TelegramProductHandler implements ITelegramProductService {
     }
   }
 
-  async handleShowFullProduct(ctx: Context, productId: string): Promise<void> {
+  async handleShowFullProduct(ctx: Context, productId: number): Promise<void> {
     try {
+      ctx.answerCbQuery();
       const product = await this.productService.findOne(productId);
       if (!product) {
         await ctx.reply(TelegramMessages.NO_PRODUCTS);
         return;
       }
 
-      await this.sendProductMessage(ctx, product, true);
+      await this.sendFullProductMessage(ctx, product);
     } catch (error) {
       this.logger.error('Error in handleShowFullProduct:', error);
       await ctx.reply(TelegramMessages.ERROR_PRODUCT_SHOW);
     }
   }
 
-  private async sendProductMessage(
+  private async sendFullProductMessage(
     ctx: Context,
     product: ProductDocument,
-    isFullView: boolean = false,
   ): Promise<void> {
-    await this.sendProductMessageHanlder(
+    await this.sendProductMessageHandler(
       ctx,
-      product._id.toString(),
+      product._id as unknown as number,
       this.getProductImageUrl(product),
-      isFullView
-        ? this.formatFullProductCaption(product)
-        : this.formatProductCaption(product),
+      this.formatFullProductCaption(product),
       product,
+      true, // isFullDetails
     );
   }
 
-  async sendProductMessageHanlder(
+  private async sendProductMessage(
     ctx: Context,
-    productId: string,
+    product: ProductDocument,
+  ): Promise<void> {
+    await this.sendProductMessageHandler(
+      ctx,
+      product._id as unknown as number,
+      this.getProductImageUrl(product),
+      this.formatProductCaption(product),
+      product,
+      false, // isFullDetails
+    );
+  }
+
+  /**
+   * Sends a product message with multiple images and appropriate caption
+   * @param ctx Telegram context
+   * @param productId Product ID string
+   * @param imageUrl Main image URL
+   * @param caption Formatted caption text
+   * @param product Product document
+   * @param isFullDetails Whether to show full product details
+   */
+  private async sendProductMessageHandler(
+    ctx: Context,
+    productId: number,
     imageUrl: string,
     caption: string,
     product: ProductDocument,
+    isFullDetails: boolean,
   ): Promise<void> {
     try {
       // Send all photos except the last one
@@ -108,7 +142,9 @@ export class TelegramProductHandler implements ITelegramProductService {
         { url: imageUrl },
         {
           caption,
-          ...this.menuService.ProductShowInline(productId),
+          ...(isFullDetails
+            ? this.menuService.ProductFullShowInline(productId)
+            : this.menuService.ProductShowInline(productId)),
           parse_mode: 'MarkdownV2',
         },
       );
@@ -118,7 +154,7 @@ export class TelegramProductHandler implements ITelegramProductService {
     }
   }
 
-  async handleAddToCart(ctx: Context, productId: string): Promise<void> {
+  async handleAddToCart(ctx: Context, productId: number): Promise<void> {
     try {
       const product = await this.productService.findOne(productId);
       if (!product) {
@@ -126,14 +162,20 @@ export class TelegramProductHandler implements ITelegramProductService {
         return;
       }
 
-      await ctx.answerCbQuery('محصول به سبد خرید اضافه شد');
+      await ctx.reply(
+        'این محصول روش پرداخت انلاین ندارد و اطلاعات شما مستقیم در اختیار فروشنده قرار میگیرد ایا ایا درخواست خود مطمئن هستید؟',
+        {
+          ...this.menuService.ProductAddToCartInline(productId),
+          parse_mode: 'MarkdownV2',
+        },
+      );
     } catch (error) {
       this.logger.error('Error in handleAddToCart:', error);
       await ctx.answerCbQuery('خطا در اضافه کردن به سبد خرید');
     }
   }
 
-  async handleAddToFavorites(ctx: Context, productId: string): Promise<void> {
+  async handleAddToFavorites(ctx: Context, productId: number): Promise<void> {
     try {
       const product = await this.productService.findOne(productId);
       if (!product) {
@@ -146,6 +188,51 @@ export class TelegramProductHandler implements ITelegramProductService {
     } catch (error) {
       this.logger.error('Error in handleAddToFavorites:', error);
       await ctx.answerCbQuery('خطا در اضافه کردن به علاقه‌مندی‌ها');
+    }
+  }
+
+  async handleAddToCartConfirm(ctx: Context, productId: number): Promise<void> {
+    try {
+      const product = await this.productService.findOne(productId);
+      if (!product) {
+        await ctx.reply(TelegramMessages.NO_PRODUCTS);
+        return;
+      }
+      
+      const userId = ctx.from?.id.toString();
+      const username = ctx.from?.username || 'کاربر ناشناس';
+
+      // Create order item
+      const orderItem: OrderItemDto = {
+        productId,
+        buyerId: userId,
+        quantity: 1,
+      };
+      
+      // Create the order
+      const createdOrder = await this.orderService.create(orderItem);
+      let orderId = 'N/A';
+      
+      if (createdOrder && typeof createdOrder === 'object') {
+        // Safely access _id using bracket notation
+        orderId = createdOrder['_id'] ? String(createdOrder['_id']) : 'N/A';
+      }
+      
+      this.logger.log(
+        `User ${username} (${userId}) confirmed order for product: ${productId}, Order ID: ${orderId}`,
+      );
+
+      // Inform the customer about the successful order
+      await ctx.answerCbQuery('سفارش شما با موفقیت ثبت شد');
+      await ctx.reply(
+        `✅ سفارش شما برای محصول "${product.name}" با موفقیت ثبت شد.\nشماره سفارش: ${orderId}\nهمکاران ما به زودی با شما تماس خواهند گرفت.`,
+      );
+    } catch (error) {
+      this.logger.error('Error in handleAddToCartConfirm:', error);
+      await ctx.answerCbQuery('خطا در ثبت سفارش');
+      await ctx.reply(
+        'متاسفانه خطایی در ثبت سفارش شما رخ داد. لطفا دوباره تلاش کنید.',
+      );
     }
   }
 

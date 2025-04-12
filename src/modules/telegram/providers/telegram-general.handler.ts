@@ -1,16 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
 import { CallbackQuery } from 'telegraf/typings/core/types/typegram';
-import { ITelegramHandler } from '../../interfaces/telegram.interface';
+import { ITelegramHandler } from '../interfaces/telegram.interface';
 
 import { TelegramProductHandler } from './telegram-main.handler';
 import { TelegramMenuService } from './telegram-menu.handler';
-import { TelegramMessages } from '../../helper/telegram.constants';
+import { TelegramMessages } from '../helper/telegram.constants';
 import {
   CallbackActionEnums,
   telegramActionType,
   TelegramActionData,
-} from '../../helper/telegram-actions';
+} from '../helper/telegram-actions';
 
 @Injectable()
 export class TelegramHandlers implements ITelegramHandler {
@@ -116,7 +116,7 @@ export class TelegramHandlers implements ITelegramHandler {
 
   async handleProductAction(
     ctx: Context,
-    productId: string,
+    productId: number,
     action: string,
   ): Promise<void> {
     try {
@@ -126,6 +126,12 @@ export class TelegramHandlers implements ITelegramHandler {
           break;
         case CallbackActionEnums.AddToCart:
           await this.productService.handleAddToCart(ctx, productId);
+          break;
+        case CallbackActionEnums.AddToCartConfirm:
+          await this.productService.handleAddToCartConfirm(ctx, productId);
+          break;
+        case CallbackActionEnums.AddToCartConfirmCancel:
+          await this.handleCancelAddToCart(ctx);
           break;
         case CallbackActionEnums.AddToFavorites:
           await this.productService.handleAddToFavorites(ctx, productId);
@@ -139,4 +145,15 @@ export class TelegramHandlers implements ITelegramHandler {
       await ctx.reply(TelegramMessages.ERROR_GENERAL);
     }
   }
+
+  async handleCancelAddToCart(ctx: Context): Promise<void> {
+    try {
+      await ctx.answerCbQuery('سفارش لغو شد');
+      await ctx.reply('درخواست شما لغو شد.');
+    } catch (error) {
+      this.logger.error('Error in handleCancelAddToCart:', error);
+      await ctx.reply(TelegramMessages.ERROR_GENERAL);
+    }
+  }
 }
+
