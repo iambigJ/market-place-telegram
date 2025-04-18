@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
-import { TelegramProductHandler } from '../handlers/telegram-seller.handler';
-import { TelegramMenuService } from '../handlers/telegram-menu.handler';
-import { TelegramMessages } from '../helper/telegram.constants';
+import { TelegramProductHandler } from './tele-buyer-handler';
+import { TelegramMenuService } from './tele-menu.handler';
+import { TelegramMessages } from '../helper/tele-constants';
 import {
   CallbackActionEnums,
   TelegramActionData,
-} from '../helper/telegram-actions';
+} from '../helper/tele-action-builder';
 
 @Injectable()
 export class TelegramHandlers {

@@ -5,12 +5,12 @@ import { OrderModule } from '../apis/order/order.module';
 import { CategoriesModule } from '../apis/categories/categories.module';
 import { FavoritesModule } from '../apis/favorites/favorites.module';
 import { TelegramInit } from './core/telegram.core';
-import { TelegramHandlers } from './core/telegram-main.handler';
-import { TelegramProductHandler } from './handlers/telegram-seller.handler';
-import { TelegramMenuService } from './handlers/telegram-menu.handler';
-import { TelegramAuthMiddleware } from './handlers/telegram-auth-middleware';
-import { TelegramStateMiddleware } from './handlers/telegram-state.middleware';
-import { TelegramSearchHandler } from './handlers/telegram-search.handler';
+import { TelegramHandlers } from './handlers/tele-callback-handler';
+import { TelegramProductHandler } from './handlers/tele-buyer-handler';
+import { TelegramMenuService } from './handlers/tele-menu.handler';
+import { TelegramAuthMiddleware } from './middleware/tele-auth-middleware';
+import { TelegramStateMiddleware } from './middleware/tele-state.middleware';
+import { TelegramSearchHandler } from './handlers/tele-search.handler';
 
 @Module({
   imports: [

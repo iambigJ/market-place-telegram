@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
-import { ITelegramProductService } from '../interfaces/telegram.interface';
+import { ITelegramProductService } from '../interfaces/tele-abstractions';
 import { ProductService } from '../../apis/product/product.service';
 import { ConfigService } from '@nestjs/config';
 import { ProductDocument } from '../../apis/product/product.schema';
-import { TelegramMessages } from '../helper/telegram.constants';
-import { TelegramMenuService } from './telegram-menu.handler';
+import { TelegramMessages } from '../helper/tele-constants';
+import { TelegramMenuService } from './tele-menu.handler';
 import { OrderService } from 'src/modules/apis/order/order.service';
 import { OrderItemDto } from 'src/modules/apis/order/dto/create-order.dto';
 import { UsersService } from '../../apis/users/users.service';

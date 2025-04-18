@@ -8,7 +8,7 @@ import {
   createUserStateKey,
   SEARCH_COMMANDS,
   StateMessages,
-} from '../helper/telegram-state.constants';
+} from '../helper/tele-state-handler';
 
 @Injectable()
 export class TelegramStateMiddleware {

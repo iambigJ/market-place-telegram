@@ -5,9 +5,9 @@ import {
   ConversationState,
   StateMessages,
   UserStateData,
-} from '../helper/telegram-state.constants';
-import { TelegramStateMiddleware } from './telegram-state.middleware';
-import { TelegramMenuService } from './telegram-menu.handler';
+} from '../helper/tele-state-handler';
+import { TelegramStateMiddleware } from '../middleware/tele-state.middleware';
+import { TelegramMenuService } from './tele-menu.handler';
 import { CategoryService } from '../../apis/categories/categoy.service';
 
 @Injectable()

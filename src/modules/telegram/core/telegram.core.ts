@@ -10,14 +10,14 @@ import {
   TelegramCommands,
   TelegramHears,
   TelegramMessages,
-} from '../helper/telegram.constants';
-import { TelegramProductHandler } from '../handlers/telegram-seller.handler';
-import { TelegramMenuService } from '../handlers/telegram-menu.handler';
-import { TelegramAuthMiddleware } from '../handlers/telegram-auth-middleware';
-import { TelegramStateMiddleware } from '../handlers/telegram-state.middleware';
-import { TelegramSearchHandler } from '../handlers/telegram-search.handler';
-import { TelegramHandlers } from './telegram-main.handler';
-import { ConversationState } from '../helper/telegram-state.constants';
+} from '../helper/tele-constants';
+import { TelegramProductHandler } from '../handlers/tele-buyer-handler';
+import { TelegramMenuService } from '../handlers/tele-menu.handler';
+import { TelegramAuthMiddleware } from '../middleware/tele-auth-middleware';
+import { TelegramStateMiddleware } from '../middleware/tele-state.middleware';
+import { TelegramSearchHandler } from '../handlers/tele-search.handler';
+import { TelegramHandlers } from '../handlers/tele-callback-handler';
+import { ConversationState } from '../helper/tele-state-handler';
 
 @Injectable()
 export class TelegramInit implements OnModuleInit, OnModuleDestroy {

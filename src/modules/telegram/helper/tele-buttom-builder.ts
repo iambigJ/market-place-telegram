@@ -8,8 +8,8 @@ import {
   buildCancelOrderAction,
   buildRemoveFromFavoritesAction,
   buildShowProductsByCategoryAction,
-} from './telegram-actions';
-import { TelegramProductButtons } from './telegram.constants';
+} from './tele-action-builder';
+import { TelegramProductButtons } from './tele-constants';
 
 export class ButtonBuilder {
   static productShowInline(productId: number) {

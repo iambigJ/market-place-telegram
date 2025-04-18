@@ -8,20 +8,20 @@ import {
   buildRemoveFromFavoritesAction,
   buildShowProductsByCategoryAction,
   goToPage,
-} from '../helper/telegram-actions';
+} from '../helper/tele-action-builder';
 import {
   TelegramMessages,
   TelegramKeyboards,
   TelegramProductButtons,
-} from '../helper/telegram.constants';
+} from '../helper/tele-constants';
 import {
   buildAddToCartAction,
   buildAddToFavoritesAction,
   buildViewProductAction,
   buildAddToCartConfirmCancelAction,
-} from '../helper/telegram-actions';
+} from '../helper/tele-action-builder';
 import mongoose from 'mongoose';
-import { ITelegramMenuService } from '../interfaces/telegram.interface';
+import { ITelegramMenuService } from '../interfaces/tele-abstractions';
 
 @Injectable()
 export class TelegramMenuService implements ITelegramMenuService {

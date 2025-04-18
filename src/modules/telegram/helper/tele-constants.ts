@@ -24,6 +24,15 @@ export enum TelegramHears {
   SIMPLE_SEARCH = '🔍 جستجوی محصول',
   ADVANCED_SEARCH = '🔬 جستجوی پیشرفته',
   CANCEL_SEARCH = 'لغو جستجو',
+  CREATE_PRODUCT = '🆕 ایجاد محصول',
+  UPDATE_PRODUCT = '🔄 ویرایش محصول',
+  DELETE_PRODUCT = '🗑️ حذف محصول',
+  CREATE_CATEGORY = '🆕 ایجاد دسته‌بندی',
+  UPDATE_CATEGORY = '🔄 ویرایش دسته‌بندی',
+  DELETE_CATEGORY = '🗑️ حذف دسته‌بندی',
+  MY_PRODUCTS = '📦 محصولات من',
+  MY_PRODUCT_ORDERS = '📋 سفارشات محصولات من',
+  MY_DASHBOARD = '🏠 داشبورد من',
 }
 
 /**
@@ -91,7 +100,7 @@ export const TelegramKeyboards: Record<
 > = {
   MAIN_MENU: [
     [TelegramHears.SELLER_MENU, TelegramHears.BUYER_MENU],
-    [TelegramHears.BYVIP, TelegramHears.RULES],
+    [TelegramHears.MY_DASHBOARD, TelegramHears.RULES],
   ],
   SELLER_MENU: [
     [TelegramHears.BROWSE_CATEGORIES, TelegramHears.BROWSE_PRODUCTS],

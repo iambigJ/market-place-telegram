@@ -53,7 +53,6 @@ export class FavoriteService {
       }
       return true;
     } catch (error) {
-      
       this.logger.error(
         `Error removing product ${productId} from favorites:`,
         error,
