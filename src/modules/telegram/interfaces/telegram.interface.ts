@@ -28,7 +28,13 @@ export interface ITelegramProductService {
   handleShowFullProduct(ctx: Context, productId: number): Promise<void>;
   handleAddToCart(ctx: Context, productId: number): Promise<void>;
   handleAddToFavorites(ctx: Context, productId: number): Promise<void>;
+  handleRemoveFromFavorites(ctx: Context, productId: number): Promise<void>;
+  handleShowUserFavorites(ctx: Context): Promise<void>;
   handleAddToCartConfirm(ctx: Context, productId: number): Promise<void>;
+  handleShowUserOrders(ctx: Context): Promise<void>;
+  handleCancelOrder(ctx: Context, orderId: string): Promise<void>;
+  handleShowCategories(ctx: Context): Promise<void>;
+  handleShowProductsByCategory(ctx: Context, categoryId: string): Promise<void>;
 }
 
 export interface ITelegramMenuService {
@@ -38,8 +44,17 @@ export interface ITelegramMenuService {
   ProductShowInline(productId: number): InlineKeyboardMarkup;
   ProductFullShowInline(productId: number): InlineKeyboardMarkup;
   ProductAddToCartInline(productId: number): InlineKeyboardMarkup;
+  OrderCancelInline(orderId: string): any;
+  FavoriteRemoveInline(productId: number): any;
+  CategoryShowProductsInline(categoryId: string): any;
   sendProductPaginationButtoms(
     offset: number,
+    limit: number,
+    ctx: Context,
+  ): Promise<void>;
+  sendNumberedPaginationButtons(
+    currentPage: number,
+    totalPages: number,
     limit: number,
     ctx: Context,
   ): Promise<void>;

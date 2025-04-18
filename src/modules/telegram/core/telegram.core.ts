@@ -6,13 +6,18 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Telegraf, Context } from 'telegraf';
-import { TelegramHandlers } from '../providers/telegram-general.handler';
-import { TelegramCommands, TelegramHears } from '../helper/telegram.constants';
-import { TelegramProductHandler } from '../providers/telegram-main.handler';
 import {
-  ITelegramHandler,
-  ITelegramProductService,
-} from '../interfaces/telegram.interface';
+  TelegramCommands,
+  TelegramHears,
+  TelegramMessages,
+} from '../helper/telegram.constants';
+import { TelegramProductHandler } from '../handlers/telegram-seller.handler';
+import { TelegramMenuService } from '../handlers/telegram-menu.handler';
+import { TelegramAuthMiddleware } from '../handlers/telegram-auth-middleware';
+import { TelegramStateMiddleware } from '../handlers/telegram-state.middleware';
+import { TelegramSearchHandler } from '../handlers/telegram-search.handler';
+import { TelegramHandlers } from './telegram-main.handler';
+import { ConversationState } from '../helper/telegram-state.constants';
 
 @Injectable()
 export class TelegramInit implements OnModuleInit, OnModuleDestroy {
@@ -23,9 +28,13 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
     private readonly config: ConfigService,
     private readonly productService: TelegramProductHandler,
     private readonly handlers: TelegramHandlers,
+    private readonly menuService: TelegramMenuService,
+    private readonly authMiddleware: TelegramAuthMiddleware,
+    private readonly stateMiddleware: TelegramStateMiddleware,
+    private readonly searchHandler: TelegramSearchHandler,
   ) {}
 
-  async onModuleInit(): Promise<void> {
+  onModuleInit() {
     this.boot();
   }
 
@@ -57,6 +66,35 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
   }
 
   private setupEventHandlers(): void {
+    // Apply auth middleware to all updates
+    this.bot.use(this.authMiddleware.middleware());
+
+    // Apply state management middleware
+    this.bot.use(this.stateMiddleware.middleware());
+
+    // Process text messages in any state (state-specific processing is in the middleware)
+    this.bot.on('text', async (ctx, next) => {
+      try {
+        // Check if user state is search results - pass to appropriate handler
+        if (ctx.state.userState) {
+          if (ctx.state.userState.state === ConversationState.SEARCH_RESULTS) {
+            await this.searchHandler.handleSimpleSearch(ctx);
+            return; // Stop processing
+          } else if (
+            ctx.state.userState.state ===
+            ConversationState.ADVANCED_SEARCH_RESULTS
+          ) {
+            await this.searchHandler.handleAdvancedSearch(ctx);
+            return; // Stop processing
+          }
+        }
+        return next(); // Continue with middleware chain if not in a search state
+      } catch (error) {
+        this.logger.error('Error in text message handler:', error);
+        return next();
+      }
+    });
+
     this.bot.on('callback_query', async (ctx: Context) => {
       try {
         await this.handlers.callBackQuery(ctx);
@@ -85,7 +123,7 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
     // Text message handlers
     this.bot.hears(TelegramHears.BUYER_MENU, async (ctx) => {
       try {
-        await this.handlers.handleBuyerMenu(ctx);
+        await this.menuService.sendBuyerMenuKeyboard(ctx);
       } catch (error) {
         this.logger.error('Error in buyer menu handler:', error);
       }
@@ -93,7 +131,7 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
 
     this.bot.hears(TelegramHears.SELLER_MENU, async (ctx) => {
       try {
-        await this.handlers.handleSellerMenu(ctx);
+        await this.menuService.sendSellerMenuKeyboard(ctx);
       } catch (error) {
         this.logger.error('Error in seller menu handler:', error);
       }
@@ -125,7 +163,7 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
 
     this.bot.hears(TelegramHears.BACK_TO_MAIN, async (ctx) => {
       try {
-        await this.handlers.sendMainMenuKeyboard(ctx);
+        await this.menuService.sendMainMenuKeyboard(ctx);
       } catch (error) {
         this.logger.error('Error in back to main handler:', error);
       }
@@ -137,6 +175,30 @@ export class TelegramInit implements OnModuleInit, OnModuleDestroy {
         await this.productService.handleShowAllProducts(ctx);
       } catch (error) {
         this.logger.error('Error in browse products handler:', error);
+      }
+    });
+
+    this.bot.hears(TelegramHears.BROWSE_CATEGORIES, async (ctx) => {
+      try {
+        await this.productService.handleShowCategories(ctx);
+      } catch (error) {
+        this.logger.error('Error in browse categories handler:', error);
+      }
+    });
+
+    this.bot.hears(TelegramHears.MY_FAVORITES, async (ctx) => {
+      try {
+        await this.productService.handleShowUserFavorites(ctx);
+      } catch (error) {
+        this.logger.error('Error in my favorites handler:', error);
+      }
+    });
+
+    this.bot.hears(TelegramHears.MY_ORDERS, async (ctx) => {
+      try {
+        await this.productService.handleShowUserOrders(ctx);
+      } catch (error) {
+        this.logger.error('Error in my orders handler:', error);
       }
     });
 

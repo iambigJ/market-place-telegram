@@ -1,19 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Context } from 'telegraf';
-import { CallbackQuery } from 'telegraf/typings/core/types/typegram';
-import { ITelegramHandler } from '../interfaces/telegram.interface';
-
-import { TelegramProductHandler } from './telegram-main.handler';
-import { TelegramMenuService } from './telegram-menu.handler';
+import { TelegramProductHandler } from '../handlers/telegram-seller.handler';
+import { TelegramMenuService } from '../handlers/telegram-menu.handler';
 import { TelegramMessages } from '../helper/telegram.constants';
 import {
   CallbackActionEnums,
-  telegramActionType,
   TelegramActionData,
 } from '../helper/telegram-actions';
 
 @Injectable()
-export class TelegramHandlers implements ITelegramHandler {
+export class TelegramHandlers {
   private readonly logger = new Logger(TelegramHandlers.name);
 
   constructor(
@@ -24,45 +20,19 @@ export class TelegramHandlers implements ITelegramHandler {
   async handleStart(ctx: Context): Promise<void> {
     try {
       await ctx.reply(TelegramMessages.WELCOME_MAIN);
-      await this.sendMainMenuKeyboard(ctx);
+      await this.menuService.sendMainMenuKeyboard(ctx);
     } catch (error) {
       this.logger.error('Error in handleStart:', error);
       await ctx.reply(TelegramMessages.ERROR_GENERAL);
     }
   }
 
-  async sendMainMenuKeyboard(ctx: Context): Promise<void> {
-    try {
-      await this.menuService.sendMainMenuKeyboard(ctx);
-    } catch (error) {
-      this.logger.error('Error in sendMainMenuKeyboard:', error);
-      await ctx.reply(TelegramMessages.ERROR_MENU);
-    }
-  }
   async handleQuit(ctx: Context): Promise<void> {
     try {
       await ctx.reply(TelegramMessages.NOT_IMPLEMENTED);
     } catch (error) {
       this.logger.error('Error in handleQuit:', error);
       await ctx.reply(TelegramMessages.ERROR_GENERAL);
-    }
-  }
-
-  async handleBuyerMenu(ctx: Context): Promise<void> {
-    try {
-      await this.menuService.sendBuyerMenuKeyboard(ctx);
-    } catch (error) {
-      this.logger.error('Error in handleBuyerMenu:', error);
-      await ctx.reply(TelegramMessages.ERROR_MENU);
-    }
-  }
-
-  async handleSellerMenu(ctx: Context): Promise<void> {
-    try {
-      await this.menuService.sendSellerMenuKeyboard(ctx);
-    } catch (error) {
-      this.logger.error('Error in handleSellerMenu:', error);
-      await ctx.reply(TelegramMessages.ERROR_MENU);
     }
   }
 
@@ -105,7 +75,30 @@ export class TelegramHandlers implements ITelegramHandler {
       }
 
       const callbackData = JSON.parse(data) as TelegramActionData;
-      const { action, productId } = callbackData;
+      const { action, productId, orderId, categoryId, limit, offset } =
+        callbackData;
+
+      if (
+        action === 'go_to_page' &&
+        typeof limit === 'number' &&
+        typeof offset === 'number'
+      ) {
+        await ctx.answerCbQuery();
+
+        await this.productService.handleShowProducts(ctx, limit, offset);
+        return;
+      }
+
+      if (action === CallbackActionEnums.CancelOrder && orderId) {
+        await this.productService.handleCancelOrder(ctx, orderId);
+        return;
+      }
+
+      // Handle show products by category
+      if (action === CallbackActionEnums.ShowProductsByCategory && categoryId) {
+        await this.productService.handleShowProductsByCategory(ctx, categoryId);
+        return;
+      }
 
       await this.handleProductAction(ctx, productId, action);
     } catch (error) {
@@ -121,6 +114,9 @@ export class TelegramHandlers implements ITelegramHandler {
   ): Promise<void> {
     try {
       switch (action) {
+        case CallbackActionEnums.RemoveFromFavorites:
+          await this.productService.handleRemoveFromFavorites(ctx, productId);
+          break;
         case CallbackActionEnums.ViewProduct:
           await this.productService.handleShowFullProduct(ctx, productId);
           break;
@@ -131,7 +127,7 @@ export class TelegramHandlers implements ITelegramHandler {
           await this.productService.handleAddToCartConfirm(ctx, productId);
           break;
         case CallbackActionEnums.AddToCartConfirmCancel:
-          await this.handleCancelAddToCart(ctx);
+          await this.productService.handleCancelAddToCart(ctx);
           break;
         case CallbackActionEnums.AddToFavorites:
           await this.productService.handleAddToFavorites(ctx, productId);
@@ -145,15 +141,4 @@ export class TelegramHandlers implements ITelegramHandler {
       await ctx.reply(TelegramMessages.ERROR_GENERAL);
     }
   }
-
-  async handleCancelAddToCart(ctx: Context): Promise<void> {
-    try {
-      await ctx.answerCbQuery('سفارش لغو شد');
-      await ctx.reply('درخواست شما لغو شد.');
-    } catch (error) {
-      this.logger.error('Error in handleCancelAddToCart:', error);
-      await ctx.reply(TelegramMessages.ERROR_GENERAL);
-    }
-  }
 }
-

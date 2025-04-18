@@ -15,11 +15,24 @@ export enum CallbackActionEnums {
   AddToFavorites = 'add_to_favorites',
   AddToCartConfirm = 'add_to_cart_confirm',
   AddToCartConfirmCancel = 'add_to_cart_confirm_cancel',
+  ShowUserOrders = 'show_user_orders',
+  CancelOrder = 'cancel_order',
+  RemoveFromFavorites = 'remove_from_favorites',
+  ShowUserFavorites = 'show_user_favorites',
+  ShowCategory = 'show_category',
+  ShowProductsByCategory = 'show_products_by_category',
+  GoToPage = 'go_to_page',
 }
 
 export interface TelegramActionData {
   action: CallbackActionEnums;
-  productId: number;
+  productId?: number;
+  orderId?: string;
+  favoriteId?: string;
+  categoryId?: string;
+  page?: number;
+  limit?: number;
+  offset?: number;
 }
 
 export interface TelegramPaginationData {
@@ -45,6 +58,16 @@ export const showProductpreviousPage = (
   return JSON.stringify({
     action: CallbackActionEnums.ProductShowAll,
     data: { limit, offset },
+  });
+};
+
+export const goToPage = (page: number, limit: number): string => {
+  const offset = (page - 1) * limit;
+  return JSON.stringify({
+    action: CallbackActionEnums.GoToPage,
+    limit,
+    page,
+    offset,
   });
 };
 
@@ -86,5 +109,35 @@ export const buildAddToCartConfirmCancelAction = (
   return JSON.stringify({
     action: CallbackActionEnums.AddToCartConfirmCancel,
     productId,
+  });
+};
+
+export const buildCancelOrderAction = (orderId: string): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.CancelOrder,
+    orderId,
+  });
+};
+
+export const buildRemoveFromFavoritesAction = (productId: number): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.RemoveFromFavorites,
+    productId,
+  });
+};
+
+export const buildShowCategoryAction = (): string => {
+  return JSON.stringify({
+    action: CallbackActionEnums.ShowCategory,
+  });
+};
+
+export const buildShowProductsByCategoryAction = (
+  categoryId: string,
+): string => {
+  console.log('buildShowProductsByCategoryAction', categoryId);
+  return JSON.stringify({
+    action: CallbackActionEnums.ShowProductsByCategory,
+    categoryId,
   });
 };

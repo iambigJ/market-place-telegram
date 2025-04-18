@@ -16,8 +16,14 @@ export enum TelegramHears {
   BYVIP = 'خرید اشتراک ویژه 💬',
   RULES = 'قوانین و مقررات 📜',
   BROWSE_PRODUCTS = '📦 تمام محصولات',
+  BROWSE_CATEGORIES = '📦 دسته‌بندی‌ها',
+  MY_ORDERS = '📋 سفارشات من',
+  MY_FAVORITES = '❤️ علاقه‌مندی‌های من',
   HELP = 'help',
   BACK_TO_MAIN = 'بازگشت به منوی اصلی',
+  SIMPLE_SEARCH = '🔍 جستجوی محصول',
+  ADVANCED_SEARCH = '🔬 جستجوی پیشرفته',
+  CANCEL_SEARCH = 'لغو جستجو',
 }
 
 /**
@@ -31,9 +37,19 @@ export enum TelegramMessages {
   NOT_IMPLEMENTED = 'این ایتم هنوز پیاده سازی نشده است',
   BUYER_MENU_NOT_READY = 'این منو هنوز ساخته نشده است',
   ERROR_PRODUCT_SHOW = 'خطایی در هنگام نمایش محصولات رخ داد',
+  ERROR_CATEGORY_SHOW = 'خطایی در هنگام نمایش دسته‌بندی‌ها رخ داد',
   PRODUCT_MOVING_PAGES = 'جابجایی بین صفحات',
   ERROR_GENERAL = 'خطا در پردازش اطلاعات',
-  NO_PRODUCTS = 'هیج محصولی یافت نشد',
+  NO_PRODUCTS = 'هیچ محصولی یافت نشد',
+  NO_CATEGORIES = 'هیچ دسته‌بندی یافت نشد',
+  NO_PRODUCTS_IN_CATEGORY = 'هیچ محصولی در این دسته‌بندی وجود ندارد',
+  NO_ORDERS = 'شما هیچ سفارشی ندارید',
+  NO_FAVORITES = 'شما هیچ محصولی را به علاقه‌مندی‌ها اضافه نکرده‌اید',
+  ORDER_CANCELLED = 'سفارش با موفقیت لغو شد',
+  ERROR_ORDER_CANCEL = 'خطا در لغو سفارش',
+  PRODUCT_ADDED_TO_FAVORITES = 'محصول به علاقه‌مندی‌ها اضافه شد',
+  PRODUCT_REMOVED_FROM_FAVORITES = 'محصول از علاقه‌مندی‌ها حذف شد',
+  ERROR_FAVORITE_ACTION = 'خطا در انجام عملیات علاقه‌مندی',
 }
 
 /**
@@ -52,8 +68,11 @@ export const TelegramProductButtons = {
   ADD_TO_CART: '🛒 افزودن به سبد خرید',
   ADD_TO_CART_CONFIRM: 'ثبت سفارش',
   ADD_TO_CART_CONFIRM_CANCEL: 'انصراف',
-  ADD_TO_FAVORITES: '❤️ علاقه‌مندی‌ها',
+  ADD_TO_FAVORITES: '❤️ افزودن به علاقه‌مندی‌ها',
+  REMOVE_FROM_FAVORITES: '❌ حذف از علاقه‌مندی‌ها',
   VIEW_PRODUCT: 'مشاهده کامل',
+  VIEW_CATEGORY_PRODUCTS: '📦 مشاهده محصولات',
+  CANCEL_ORDER: '❌ لغو سفارش',
 } as const;
 
 /**
@@ -75,15 +94,15 @@ export const TelegramKeyboards: Record<
     [TelegramHears.BYVIP, TelegramHears.RULES],
   ],
   SELLER_MENU: [
-    ['🗂️ تمام دسته بندی ها', TelegramHears.BROWSE_PRODUCTS],
+    [TelegramHears.BROWSE_CATEGORIES, TelegramHears.BROWSE_PRODUCTS],
     ['🔍 جستجوی تکی', '🔬 جستجوی پیشرفته'],
-    ['❤️ علاقه مندی ها ', '🛒 سبد خرید'],
+    [TelegramHears.MY_FAVORITES, '🛒 سبد خرید'],
     [TelegramHears.BACK_TO_MAIN],
   ],
   BUYER_MENU: [
-    ['🗂️ تمام دسته بندی ها', TelegramHears.BROWSE_PRODUCTS],
+    [TelegramHears.BROWSE_CATEGORIES, TelegramHears.BROWSE_PRODUCTS],
     ['🔍 جستجوی محصول', '🔬 جستجوی پیشرفته'],
-    ['❤️ علاقه مندی ها', '📋 سفارشات من'],
+    [TelegramHears.MY_FAVORITES, TelegramHears.MY_ORDERS],
     [TelegramHears.BACK_TO_MAIN],
   ],
 } as const;
