@@ -31,17 +31,20 @@ export enum OrderStatus {
 export class Order {
   @Prop({
     required: true,
-    type: Types.ObjectId,
-    ref: User.name,
-    index: true,
   })
-  customerId: string;
+  ownerId: string;
+
+  @Prop({ type: String, required: true })
+  buyerId: string;
 
   @Prop({ type: [OrderItemSchema], default: [] })
   items: OrderItem;
 
   @Prop({ required: true, type: Types.ObjectId, ref: Product.name })
   productId: Types.ObjectId;
+
+  @Prop({ type: Number, required: true })
+  quantity: number;
 
   @Prop({
     required: true,

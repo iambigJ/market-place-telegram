@@ -16,6 +16,7 @@ import { AuthModule } from './modules/apis/auth/auth.module';
 import { ProductModule } from './modules/apis/product/product.module';
 import { CacheService } from './common/cache/redis-service';
 import { TelegramModule } from './modules/telegram/telegram.module';
+import { FavoritesModule } from './modules/apis/favorites/favorites.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ConfigService } from '@nestjs/config';
 import { JWTModule } from './shared/jwt-config/jwt-module';
@@ -44,6 +45,7 @@ import { AuthPrefix } from './common/cache/cache-prefixes';
     UsersModule,
     AuthModule,
     ProductModule,
+    FavoritesModule,
     TelegramModule,
   ],
   providers: [

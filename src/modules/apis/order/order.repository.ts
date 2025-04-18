@@ -4,6 +4,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Order, OrderDocument } from './order.schema';
 import { Model, Types } from 'mongoose';
 import { OrderItemDto } from './dto/create-order.dto';
+import { Product } from '../product/product.schema';
 
 @Injectable()
 export class OrderRepository {
@@ -12,8 +13,9 @@ export class OrderRepository {
   ) {}
 
   async createOrder(
-    orderData: OrderItemDto & { ownerId: number },
+    orderData: OrderItemDto & { ownerId: string },
   ): Promise<Order> {
+    console.log(orderData);
     const createdOrder = new this.orderModel(orderData);
     return createdOrder.save();
   }
@@ -23,6 +25,10 @@ export class OrderRepository {
       .findOne({ telegramId: 1 })
       .populate('products')
       .exec();
+  }
+
+  findBuyerId(buyerId: string) {
+    return this.orderModel.find({ buyerId }).lean().exec();
   }
 
   async findByTeleId(id: string): Promise<Order[]> {

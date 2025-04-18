@@ -10,7 +10,7 @@ import {
 import { setupProductSchemaAutoIncrement, Product } from './product.schema';
 import { UsersModule } from '../users/users.module';
 import { Connection } from 'mongoose';
-
+import { CategoriesModule } from '../categories/categories.module';
 
 @Module({
   imports: [
@@ -24,6 +24,7 @@ import { Connection } from 'mongoose';
       },
     ]),
     UsersModule,
+    CategoriesModule,
   ],
   controllers: [ProductController],
   providers: [ProductRepository, ProductService],

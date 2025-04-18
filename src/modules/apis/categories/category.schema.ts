@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
 
 @Schema({ timestamps: true, strict: 'throw' })
 export class Category {
@@ -13,4 +13,5 @@ export class Category {
   description: string;
 }
 
+export type CategoryDocument = Category & Document;
 export const CategorySchema = SchemaFactory.createForClass(Category);

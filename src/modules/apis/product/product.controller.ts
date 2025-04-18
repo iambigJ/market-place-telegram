@@ -16,6 +16,7 @@ import {
   Req,
   BadRequestException,
   UnauthorizedException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { Product } from './product.schema';
@@ -69,7 +70,7 @@ export class ProductController {
 
   @Get(':id')
   @UseGuards(AuthGuard)
-  async findOne(@Param('id') id: string): Promise<Product> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Product> {
     return this.productService.findOne(id);
   }
 

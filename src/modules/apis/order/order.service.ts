@@ -18,13 +18,30 @@ export class OrderService {
     );
     return this.orderRepository.createOrder({
       ...orderData,
-      ownerId: productOwnerId._id,
+      ownerId: productOwnerId.ownerId,
     });
   }
 
   // async findAll(teleId: string): Promise<Order[]> {
   //   return this.orderRepository.findByTeleId();
   // }
+
+  async findWithProduct(buyerId: string) {
+    try {
+      const orders = await this.orderRepository.findBuyerId(buyerId);
+      const ordersWithProduct = [];
+      for (const order of orders) {
+        const product = await this.productService.findOne(order.productId);
+        order['product'] = product.toObject();
+        ordersWithProduct.push(order);
+      }
+      console.log(ordersWithProduct);
+      return ordersWithProduct;
+    } catch (error: any) {
+      console.log(error);
+      throw new NotFoundException(`Order with product id ${buyerId} not found`);
+    }
+  }
 
   async findOne(id: string): Promise<Order> {
     const order = await this.orderRepository.findById(id);
