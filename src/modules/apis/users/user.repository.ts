@@ -10,7 +10,7 @@ export class UserRepository {
   private readonly logger = new MyLogger(UserRepository.name);
   constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<User> {
+  async createUser(createUserDto: any): Promise<User> {
     return this.userModel.create(createUserDto);
   }
 

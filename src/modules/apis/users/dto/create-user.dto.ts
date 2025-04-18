@@ -26,6 +26,15 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
+  username: string;
+
+  @IsString()
+  firstName: string;
+
+  @IsString()
+  lastName: string;
+
+  @IsString()
   @IsOptional()
   address?: string;
 

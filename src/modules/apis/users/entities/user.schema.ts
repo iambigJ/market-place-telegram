@@ -1,6 +1,5 @@
 import { Prop, SchemaFactory, Schema } from '@nestjs/mongoose';
-
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export type UserDocument = User & Document;
 
@@ -11,13 +10,21 @@ export class User {
 
   @Prop({
     unique: true,
-    required: true,
     match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'], // Email validation using regex
   })
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   password: string;
+
+  @Prop({ required: true })
+  username: string;
+
+  @Prop({ required: true })
+  firstName: string;
+
+  @Prop({ required: true })
+  lastName: string;
 
   @Prop({ enum: ['Seller', 'Customer'] })
   role: string;
@@ -33,6 +40,9 @@ export class User {
 
   @Prop({ type: [String] })
   favoriteCategories: Array<number | string>;
+
+  @Prop({ type: [Number], default: [] })
+  favoriteProducts: number[];
 
   @Prop({ type: Number })
   productLimit: number;

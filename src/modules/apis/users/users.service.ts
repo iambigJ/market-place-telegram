@@ -11,6 +11,13 @@ import { CacheService } from '../../../common/cache/redis-service';
 import { CacheUser } from 'src/common/types/cache-user.type';
 import { createCachePreficAuth } from 'src/common/cache/cache-prefixes';
 
+export interface ITelegramUserCreate {
+  telegramId: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+}
+
 @Injectable()
 export class UsersService {
   private logger = new MyLogger(UsersService.name);
@@ -34,6 +41,20 @@ export class UsersService {
       this.logger.error('error update product limit', e?.stack);
       throw new BadRequestException('UpdateProductLimit');
     });
+  }
+
+  createByTelegram(user: ITelegramUserCreate) {
+    try {
+      return this.userRepository.createUser({
+        telegramId: user.telegramId,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      } as any);
+    } catch (e) {
+      this.logger.error('error create user', e?.stack, e?.message);
+      throw new BadRequestException('BadRequest');
+    }
   }
 
   async create(createUserDto: CreateUserDto) {
@@ -77,6 +98,16 @@ export class UsersService {
           throw new NotFoundException('UserNotFound');
         }
         return user;
+      })
+      .catch((e) => {
+        this.logger.error('error find user', e?.stack);
+        throw new BadRequestException(e?.message);
+      });
+  }
+  async findByTeleId(telegramId: string) {
+    return await this.userRepository
+      .findByCondition({
+        telegramId,
       })
       .catch((e) => {
         this.logger.error('error find user', e?.stack);
